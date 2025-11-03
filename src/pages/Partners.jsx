@@ -1,3 +1,8 @@
-export default function Partners() {
-  return <h1>Partners Overview</h1>;
+export default function Calendar() {
+  return (
+    <div className="coming-soon">
+      <h1>🤝 Partners</h1>
+      <p>Feature Coming Soon...</p>
+    </div>
+  );
 }

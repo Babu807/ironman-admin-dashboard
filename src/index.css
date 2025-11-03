@@ -29,6 +29,25 @@ body {
   box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
 }
 
+.coming-soon {
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: fade 1.5s infinite alternate;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0.5;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 
 /* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
