@@ -1,44 +1,64 @@
 name: Build and deploy frontend to build repo
 
+# Trigger manually or on push to source repo main
 on:
+  workflow_dispatch:   # Manual trigger
   push:
     branches:
-      - main
+      - main          # Only triggers when source repo main is updated
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # 1️⃣ Checkout source repo (frontend + backend)
+      - name: Checkout source repo
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
+      # 4️⃣ Build frontend project
+      - name: Build frontend
         run: npm run build:pages
 
-      - name: Deploy to build repo
+      # 5️⃣ Deploy to separate build repo
+      - name: Deploy frontend build to build repo
         env:
-          BUILD_REPO: ${{ secrets.BUILD_REPO }}
-          BUILD_REPO_PAT: ${{ secrets.BUILD_REPO_PAT }}
+          BUILD_REPO: ${{ secrets.BUILD_REPO }}          # Build repo HTTPS URL
+          BUILD_REPO_PAT: ${{ secrets.BUILD_REPO_PAT }}  # Personal Access Token
           DEPLOY_USER_NAME: ${{ secrets.DEPLOY_USER_NAME }}
           DEPLOY_USER_EMAIL: ${{ secrets.DEPLOY_USER_EMAIL }}
         run: |
+          # Create temporary folder for deployment
           mkdir deploy
           cp -r dist/* deploy/
           cd deploy
+
+          # Initialize Git
           git init
           git config user.name "$DEPLOY_USER_NAME"
           git config user.email "$DEPLOY_USER_EMAIL"
-          # Use PAT for HTTPS authentication
+
+          # Add build repo as remote with PAT authentication
           git remote add origin https://x-access-token:$BUILD_REPO_PAT@${BUILD_REPO#https://}
+
+          # Checkout main branch of build repo (create if it doesn't exist)
+          git fetch origin main || true
+          git checkout -b main || git checkout main
+
+          # Remove old files and copy new build files
+          git rm -rf . || true
           git add .
-          git commit -m "Deploy frontend build — $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+
+          # Commit and push
+          git commit -m "Deploy frontend build — $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || true
           git push -f origin main
