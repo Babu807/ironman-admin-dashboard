@@ -1,21 +1,58 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Shield, Lock, User } from "lucide-react";
+import axios from "axios";
 import bgImage from "../assets/ironman-wallpaper.jpg";
-
 
 export default function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        if (username === "admin" && password === "ironman") {
+        setError("");
+        setLoading(true);
+
+        try {
+
+            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/crm/login`, {
+                email: username,
+                password: password,
+            });
+
+            // Required success flag
+            if (!res.data.status) {
+                setError(res.data.message || "Login failed");
+                setLoading(false);
+                return;
+            }
+
+            const user = res.data.user;
+
+            // Role check
+            if (user.role !== "super_admin") {
+                setError("Access denied. Only super admins can login.");
+                setLoading(false);
+                return;
+            }
+
+            // Store token + user
+            localStorage.setItem("token", res.data.accessToken);
+            localStorage.setItem("user", JSON.stringify(res.data.user));
             localStorage.setItem("auth", "true");
+
             navigate("/dashboard");
-        } else {
-            alert("Invalid credentials! Try admin / ironman 😎");
+
+        } catch (err) {
+            console.error(err);
+            setError(
+                err.response?.data?.message || "Unable to login. Try again."
+            );
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -24,10 +61,8 @@ export default function Login() {
             className="min-h-screen flex items-center justify-center bg-cover bg-center"
             style={{ backgroundImage: `url(${bgImage})` }}
         >
-            {/* Overlay */}
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-            {/* Card */}
             <div className="relative z-10 bg-white/90 border border-[#FFD700]/40 rounded-2xl shadow-2xl p-8 w-[400px]">
                 <div className="flex flex-col items-center mb-6">
                     <Shield className="h-10 w-10 text-[#B91C1C] mb-2" />
@@ -40,15 +75,23 @@ export default function Login() {
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-5">
+                    {/* Error */}
+                    {error && (
+                        <div className="text-red-600 text-sm text-center font-medium">
+                            {error}
+                        </div>
+                    )}
+
                     {/* Username */}
                     <div className="relative">
                         <User className="absolute left-3 top-2.5 text-gray-400 h-5 w-5" />
                         <input
                             type="text"
-                            placeholder="Username"
+                            placeholder="Email"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             className="w-full bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 rounded-md py-2 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
+                            required
                         />
                     </div>
 
@@ -61,17 +104,29 @@ export default function Login() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 rounded-md py-2 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
+                            required
                         />
                     </div>
 
-                    {/* Button */}
+                    {/* Login Button */}
                     <button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-[#FFD700] to-[#B91C1C] text-black font-semibold py-2 rounded-md hover:opacity-90 transition"
+                        disabled={loading}
+                        className="w-full bg-gradient-to-r from-[#FFD700] to-[#B91C1C] text-black font-semibold py-2 rounded-md hover:opacity-90 transition disabled:opacity-60"
                     >
-                        LOGIN
+                        {loading ? "Logging in..." : "LOGIN"}
                     </button>
                 </form>
+
+                {/* Register Link */}
+                <div className="mt-3 text-center">
+                    <Link
+                        to="/register"
+                        className="text-sm text-[#B91C1C] hover:underline font-medium"
+                    >
+                        New User? Register here
+                    </Link>
+                </div>
 
                 <div className="mt-4 text-center text-xs text-gray-600">
                     © Stark Industries 2025
