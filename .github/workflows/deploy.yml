@@ -28,7 +28,7 @@ jobs:
 
       # 4️⃣ Build frontend project
       - name: Build frontend
-        run: npm run build:pages
+        run: npm run build
 
       # 5️⃣ Deploy to separate build repo
       - name: Deploy frontend build to build repo

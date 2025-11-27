@@ -41,7 +41,7 @@ const Dashboard = () => {
       .then(async (res) => {
         if (res.status === 403) {
           localStorage.removeItem("token");
-          window.location.href = "/login";
+          window.location.href = "/ironman-admin-dashboard/login";
           return;
         }
         return res.json();
@@ -73,7 +73,7 @@ const Dashboard = () => {
       .then(async (res) => {
         if (res.status === 403) {
           localStorage.removeItem("token");
-          window.location.href = "/login";
+          window.location.href = "/ironman-admin-dashboard/login";
           return;
         }
         return res.json();
@@ -96,7 +96,7 @@ const Dashboard = () => {
       .then(async (res) => {
         if (res.status === 403) {
           localStorage.removeItem("token");
-          window.location.href = "/login";
+          window.location.href = "/ironman-admin-dashboard/login";
           return;
         }
         return res.json();
@@ -119,7 +119,7 @@ const Dashboard = () => {
       .then(async (res) => {
         if (res.status === 403) {
           localStorage.removeItem("token");
-          window.location.href = "/login";
+          window.location.href = "/ironman-admin-dashboard/login";
           return;
         }
         return res.json();

@@ -52,7 +52,7 @@ export default function Layout() {
               className="p-2 text-gray-600 hover:text-[#b91c1c] transition"
               onClick={() => {
                 localStorage.removeItem("auth");
-                window.location.href = "/login";
+                window.location.href = "/ironman-admin-dashboard/login";
               }}
             >
               <Power className="h-5 w-5" />
