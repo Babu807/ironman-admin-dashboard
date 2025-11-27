@@ -70,7 +70,7 @@ export default function Login() {
                         IRONMAN ADMIN
                     </h1>
                     <p className="text-gray-600 text-sm font-medium">
-                        Access the Stark Control Panel
+                        Access the Ironman Admin Panel
                     </p>
                 </div>
 
