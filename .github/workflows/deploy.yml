@@ -28,7 +28,9 @@ jobs:
 
       # 4️⃣ Build frontend project
       - name: Build frontend
-        run: VITE_API_URL=${{ secrets.BACKEND_IP }} npm run build
+        run: VITE_API_BASE_URL=${{ secrets.BACKEND_IP }} npm run build
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
 
       # 5️⃣ Deploy to separate build repo
       - name: Deploy frontend build to build repo
