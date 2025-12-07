@@ -3,9 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
     LayoutDashboard,
     Truck,
-    Calendar,
     Users,
-    MapPin,
     Building2,
     BarChart3,
     ChevronLeft,
@@ -15,10 +13,8 @@ import {
 const menuItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Delivery", path: "/delivery", icon: Truck },
-    // { name: "Calendar", path: "/calendar", icon: Calendar },
     { name: "Partners", path: "/partners", icon: Users },
     { name: "Hubs", path: "/hubs", icon: Building2 },
-    // { name: "Locations", path: "/locations", icon: MapPin },
     { name: "Reports", path: "/reports", icon: BarChart3 },
 ];
 
@@ -28,20 +24,25 @@ export default function Sidebar() {
 
     return (
         <aside
-            className={`${collapsed ? "w-20" : "w-64"
-                } bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-sm`}
+            className={`relative ${collapsed ? "w-20" : "w-64"
+                } bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-sm flex-shrink-0`}
         >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                <h1
-                    className={`font-extrabold text-xl tracking-wide text-[#b91c1c] transition-all duration-300 ${collapsed ? "opacity-0 w-0" : "opacity-100"
-                        }`}
-                >
-                    IRONMAN
-                </h1>
+                {!collapsed && (
+                    <h1 className="font-extrabold text-xl tracking-wide text-[#b91c1c]">
+                        IRONMAN
+                    </h1>
+                )}
+
                 <button
-                    onClick={() => setCollapsed(!collapsed)}
-                    className="text-[#b91c1c] hover:text-[#fbbf24] transition"
+                    type="button"
+                    onClick={() => setCollapsed(prev => !prev)}
+                    className="ml-auto p-2 rounded-md
+               text-[#b91c1c]
+               hover:bg-gray-100
+               cursor-pointer
+               transition"
                 >
                     {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                 </button>
@@ -56,8 +57,8 @@ export default function Sidebar() {
                             key={path}
                             to={path}
                             className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${active
-                                    ? "bg-[#b91c1c]/10 text-[#b91c1c] border-l-4 border-[#b91c1c]"
-                                    : "text-gray-700 hover:bg-[#b91c1c]/5 hover:text-[#b91c1c]"
+                                ? "bg-[#b91c1c]/10 text-[#b91c1c] border-l-4 border-[#b91c1c]"
+                                : "text-gray-700 hover:bg-[#b91c1c]/5 hover:text-[#b91c1c]"
                                 }`}
                         >
                             <Icon size={18} />

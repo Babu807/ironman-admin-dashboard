@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { Bell, Search, Power } from "lucide-react";
 
 export default function Layout() {
   const location = useLocation();
+  const [collapsed, setCollapsed] = useState(false);
 
-  // Clean page title logic
   const routeTitle = (() => {
     if (location.pathname === "/") return "Dashboard";
     const path = location.pathname.replace("/", "");
@@ -16,16 +16,20 @@ export default function Layout() {
   return (
     <div className="flex h-screen bg-gradient-to-br from-[#0b0f14] via-gray-900 to-black text-gray-100">
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar
+        collapsed={collapsed}
+        onToggle={() => setCollapsed((prev) => !prev)}
+      />
 
-      {/* Main Content */}
-      <div className="flex flex-col flex-1">
+      {/* Main Content */} 
+      <div className="flex flex-col flex-1 min-w-0">
         {/* Top Navbar */}
-        <header className="sticky top-0 z-40 flex items-center justify-between h-14 px-6
-  border-b border-gray-200
-  bg-white
-  shadow-sm">
-
+        <header
+          className="sticky top-0 z-40 flex items-center justify-between h-14 px-6
+          border-b border-gray-200
+          bg-white
+          shadow-sm"
+        >
           <h1 className="text-lg font-semibold tracking-wide text-gray-800">
             {routeTitle || "IronMan"}
           </h1>
@@ -42,10 +46,10 @@ export default function Layout() {
             </div>
 
             {/* Notifications */}
-            <button className="relative p-2 text-gray-500 hover:text-gray-800 transition">
+            {/* <button className="relative p-2 text-gray-500 hover:text-gray-800 transition">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 inline-block w-2 h-2 bg-[#FF4500] rounded-full shadow-[0_0_4px_#FF4500]" />
-            </button>
+            </button> */}
 
             {/* Power / Logout */}
             <button
@@ -57,10 +61,8 @@ export default function Layout() {
             >
               <Power className="h-5 w-5" />
             </button>
-
           </div>
         </header>
-
 
         {/* Page Container */}
         <main className="flex-1 overflow-y-auto p-6 bg-gray-100 text-gray-900 shadow-inner">

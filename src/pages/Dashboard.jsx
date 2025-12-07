@@ -151,6 +151,15 @@ const Dashboard = () => {
     </div>
   );
 
+  const formatStageLabel = (stage) => {
+    if (!stage) return "";
+
+    return stage
+      .replace(/[_-]/g, " ")
+      .toLowerCase()
+      .replace(/\b\w/g, char => char.toUpperCase());
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold mb-6">Dashboard Overview</h1>
@@ -179,7 +188,7 @@ const Dashboard = () => {
       </div>
 
       {/* ORDER BREAKDOWN PIE */}
-      <div className="bg-white rounded-2xl shadow p-6 mb-8">
+      <div className="card-elevated p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4">
           Order Breakdown by Stage
         </h2>
@@ -198,14 +207,26 @@ const Dashboard = () => {
                   cy="50%"
                   outerRadius={120}
                   dataKey="value"
-                  label={({ name }) => name}
+                  label={({ name }) => formatStageLabel(name)}
                 >
                   {breakdown.map((entry, index) => (
-                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={index}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
-                <Tooltip />
-                <Legend />
+
+                <Tooltip
+                  formatter={(value, name) => [
+                    value,
+                    formatStageLabel(name),
+                  ]}
+                />
+
+                <Legend
+                  formatter={(value) => formatStageLabel(value)}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -213,7 +234,7 @@ const Dashboard = () => {
       </div>
 
       {/* DAILY AVG DELIVERY CHART */}
-      <div className="bg-white rounded-2xl shadow p-6 mb-8">
+      <div className="card-elevated p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4">
           Average Delivery Time (Daily Trend)
         </h2>
@@ -244,7 +265,7 @@ const Dashboard = () => {
       </div>
 
       {/* STAGE SUMMARY TABLE */}
-      <div className="bg-white rounded-2xl shadow p-6">
+      <div className="card-elevated p-6">
         <h2 className="text-xl font-semibold mb-4">Stage-wise Summary</h2>
 
         {loadingStage ? (
@@ -268,7 +289,7 @@ const Dashboard = () => {
                   key={index}
                   className={`${index % 2 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100`}
                 >
-                  <td className="py-3 px-4">{row.stage}</td>
+                  <td className="py-3 px-4">{formatStageLabel(row.stage)}</td>
                   <td className="py-3 px-4">{row.orders}</td>
                   <td className="py-3 px-4">{row.percent}%</td>
                   <td className="py-3 px-4">{row.avg}</td>
