@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Shield, Lock, User } from "lucide-react";
 import axios from "axios";
 import bgImage from "../assets/ironman-wallpaper.jpg";
+import toast from "react-hot-toast";
 
 export default function Login() {
     const [username, setUsername] = useState("");
@@ -17,44 +18,49 @@ export default function Login() {
         setLoading(true);
 
         try {
+            const res = await axios.post(
+                `${import.meta.env.VITE_API_BASE_URL}/api/auth/crm/login`,
+                {
+                    email: username,
+                    password,
+                }
+            );
 
-            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/crm/login`, {
-                email: username,
-                password: password,
-            });
-
-            // Required success flag
             if (!res.data.status) {
-                setError(res.data.message || "Login failed");
+                toast.error(res.data.message || "Login failed");
                 setLoading(false);
                 return;
             }
 
             const user = res.data.user;
 
-            // Role check
             if (user.role !== "super_admin") {
-                setError("Access denied. Only super admins can login.");
+                toast.error("Access denied. Only super admins can login.");
                 setLoading(false);
                 return;
             }
 
-            // Store token + user
+            // ✅ Success
             localStorage.setItem("token", res.data.accessToken);
-            localStorage.setItem("user", JSON.stringify(res.data.user));
+            localStorage.setItem("user", JSON.stringify(user));
             localStorage.setItem("auth", "true");
 
-            navigate("/dashboard");
+            toast.success("Login successful! Welcome back 👋");
+
+            // slight delay so toast is visible
+            setTimeout(() => {
+                navigate("/dashboard");
+            }, 800);
 
         } catch (err) {
-            console.error(err);
-            setError(
+            toast.error(
                 err.response?.data?.message || "Unable to login. Try again."
             );
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <div
@@ -75,12 +81,6 @@ export default function Login() {
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-5">
-                    {/* Error */}
-                    {error && (
-                        <div className="text-red-600 text-sm text-center font-medium">
-                            {error}
-                        </div>
-                    )}
 
                     {/* Username */}
                     <div className="relative">
@@ -112,10 +112,18 @@ export default function Login() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-gradient-to-r from-[#FFD700] to-[#B91C1C] text-black font-semibold py-2 rounded-md hover:opacity-90 transition disabled:opacity-60"
+                        className="w-full bg-gradient-to-r from-[#FFD700] to-[#B91C1C]
+             text-black font-semibold py-2 rounded-md
+             hover:opacity-90 transition disabled:opacity-60
+             flex justify-center items-center"
                     >
-                        {loading ? "Logging in..." : "LOGIN"}
+                        {loading ? (
+                            <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            "LOGIN"
+                        )}
                     </button>
+
                 </form>
 
                 {/* Register Link */}

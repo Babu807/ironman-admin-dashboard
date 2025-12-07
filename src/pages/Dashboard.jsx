@@ -143,27 +143,40 @@ const Dashboard = () => {
       });
   }, []);
 
+  const Spinner = ({ size = 8, color = "gray-500" }) => (
+    <div className="flex justify-center items-center py-8">
+      <div
+        className={`w-${size} h-${size} border-4 border-${color} border-t-transparent rounded-full animate-spin`}
+      />
+    </div>
+  );
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold mb-6">Dashboard Overview</h1>
 
       {/* SUMMARY CARDS */}
-      {loadingSummary ? (
-        <div className="text-center py-8 text-gray-500">Loading summary...</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {summary.map((item, index) => (
-            <div
-              key={index}
-              className={`${item.color} text-white rounded-2xl shadow-lg p-5`}
-            >
-              <h2 className="text-lg font-medium">{item.title}</h2>
-              <p className="text-3xl font-bold mt-2">{item.value}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {(loadingSummary ? Array(4).fill(null) : summary).map((item, index) => (
+          <div
+            key={index}
+            className={`${item?.color || "bg-gray-200"} text-white rounded-2xl shadow-lg p-5 min-h-[110px]
+                  flex flex-col justify-between`}
+          >
+            <h2 className="text-lg font-medium opacity-90">
+              {item?.title || "Loading"}
+            </h2>
+
+            {loadingSummary ? (
+              <div className="flex justify-center">
+                <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : (
+              <p className="text-3xl font-bold">{item.value}</p>
+            )}
+          </div>
+        ))}
+      </div>
 
       {/* ORDER BREAKDOWN PIE */}
       <div className="bg-white rounded-2xl shadow p-6 mb-8">
@@ -172,11 +185,11 @@ const Dashboard = () => {
         </h2>
 
         {loadingBreakdown ? (
-          <div className="text-center py-10 text-gray-500">Loading chart...</div>
+          <Spinner />
         ) : breakdown.length === 0 ? (
           <div className="text-center py-10 text-gray-400">No data available</div>
         ) : (
-          <div className="w-full h-80">
+          <div className="w-full h-80 flex items-center justify-center">
             <ResponsiveContainer>
               <PieChart>
                 <Pie
@@ -206,7 +219,7 @@ const Dashboard = () => {
         </h2>
 
         {loadingAvg ? (
-          <div className="text-center py-10 text-gray-500">Loading graph...</div>
+          <Spinner />
         ) : avgDeliveryData.length === 0 ? (
           <div className="text-center text-gray-400">No data to display</div>
         ) : (
@@ -235,7 +248,7 @@ const Dashboard = () => {
         <h2 className="text-xl font-semibold mb-4">Stage-wise Summary</h2>
 
         {loadingStage ? (
-          <div className="text-center py-10 text-gray-500">Loading summary...</div>
+          <Spinner />
         ) : stageSummary.length === 0 ? (
           <div className="text-center py-10 text-gray-400">No stage data</div>
         ) : (

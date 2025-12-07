@@ -15,10 +15,10 @@ import {
 const menuItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Delivery", path: "/delivery", icon: Truck },
-    { name: "Calendar", path: "/calendar", icon: Calendar },
+    // { name: "Calendar", path: "/calendar", icon: Calendar },
     { name: "Partners", path: "/partners", icon: Users },
     { name: "Hubs", path: "/hubs", icon: Building2 },
-    { name: "Locations", path: "/locations", icon: MapPin },
+    // { name: "Locations", path: "/locations", icon: MapPin },
     { name: "Reports", path: "/reports", icon: BarChart3 },
 ];
 

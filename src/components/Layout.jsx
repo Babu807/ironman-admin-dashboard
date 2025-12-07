@@ -21,12 +21,12 @@ export default function Layout() {
       {/* Main Content */}
       <div className="flex flex-col flex-1">
         {/* Top Navbar */}
-        <header className="sticky top-0 z-40 flex items-center justify-between h-14 px-6 
-  border-b border-[#b8860b]/30 
-  bg-gradient-to-r from-[#7a0000] via-[#b91c1c] to-[#c9a44a] 
-  shadow-[0_2px_10px_rgba(185,28,28,0.25)]">
+        <header className="sticky top-0 z-40 flex items-center justify-between h-14 px-6
+  border-b border-gray-200
+  bg-white
+  shadow-sm">
 
-          <h1 className="text-lg font-semibold tracking-wide text-[#FFD700] drop-shadow-[0_0_4px_rgba(255,215,0,0.4)]">
+          <h1 className="text-lg font-semibold tracking-wide text-gray-800">
             {routeTitle || "IronMan"}
           </h1>
 
@@ -42,14 +42,14 @@ export default function Layout() {
             </div>
 
             {/* Notifications */}
-            <button className="relative p-2 hover:text-[#FFD700] transition">
+            <button className="relative p-2 text-gray-500 hover:text-gray-800 transition">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 inline-block w-2 h-2 bg-[#FF4500] rounded-full shadow-[0_0_4px_#FF4500]" />
             </button>
 
             {/* Power / Logout */}
             <button
-              className="p-2 text-gray-600 hover:text-[#b91c1c] transition"
+              className="p-2 text-gray-400 hover:text-red-600 transition"
               onClick={() => {
                 localStorage.removeItem("auth");
                 window.location.href = "/login";
@@ -63,7 +63,7 @@ export default function Layout() {
 
 
         {/* Page Container */}
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-100 text-gray-900 rounded-tl-3xl shadow-inner">
+        <main className="flex-1 overflow-y-auto p-6 bg-gray-100 text-gray-900 shadow-inner">
           <div className="bg-white p-6 rounded-xl shadow-md min-h-[85vh]">
             <Outlet />
           </div>

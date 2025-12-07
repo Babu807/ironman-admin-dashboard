@@ -168,7 +168,7 @@ const Delivery = () => {
                     {[
                       "Order ID",
                       "Customer",
-                      "Location",
+                      // "Location",
                       "Partner",
                       "Delivery Time",
                       "Shift",
@@ -199,9 +199,9 @@ const Delivery = () => {
                       <td className="py-3 px-4 border-b text-sm">
                         {order.customer}
                       </td>
-                      <td className="py-3 px-4 border-b text-sm">
+                      {/* <td className="py-3 px-4 border-b text-sm">
                         {order.location}
-                      </td>
+                      </td> */}
                       <td className="py-3 px-4 border-b text-sm">
                         {order.partner}
                       </td>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Shield, User, Mail, Phone, Lock } from "lucide-react";
 import axios from "axios";
 import bgImage from "../assets/ironman-wallpaper.jpg";
+import toast from "react-hot-toast";
 
 export default function Register() {
     const navigate = useNavigate();
@@ -14,8 +15,6 @@ export default function Register() {
         password: "",
     });
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -23,8 +22,12 @@ export default function Register() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        setError("");
-        setSuccess("");
+
+        if (!form.first_name.trim()) {
+            toast.error("First name is required");
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -36,15 +39,22 @@ export default function Register() {
                 }
             );
 
-            if (res.data.status) {
-                setSuccess("Account created successfully!");
-                setTimeout(() => navigate("/login"), 1200);
-            } else {
-                setError(res.data.message || "Registration failed");
+            if (!res.data.status) {
+                toast.error(res.data.message || "Registration failed");
+                setLoading(false);
+                return;
             }
+
+            toast.success("Account created successfully! Redirecting to login…");
+
+            setTimeout(() => {
+                navigate("/login");
+            }, 1200);
+
         } catch (err) {
-            console.error(err);
-            setError(err.response?.data?.message || "Something went wrong");
+            toast.error(
+                err.response?.data?.message || "Something went wrong"
+            );
         } finally {
             setLoading(false);
         }
@@ -71,19 +81,6 @@ export default function Register() {
                 </div>
 
                 <form onSubmit={handleRegister} className="space-y-5">
-                    {/* Error */}
-                    {error && (
-                        <div className="text-red-600 text-sm text-center font-medium">
-                            {error}
-                        </div>
-                    )}
-
-                    {/* Success */}
-                    {success && (
-                        <div className="text-green-600 text-sm text-center font-medium">
-                            {success}
-                        </div>
-                    )}
 
                     {/* First Name (optional) */}
                     <div className="relative">
@@ -91,9 +88,10 @@ export default function Register() {
                         <input
                             type="text"
                             name="first_name"
-                            placeholder="First Name (optional)"
+                            placeholder="First Name *"
                             value={form.first_name}
                             onChange={handleChange}
+                            required
                             className="w-full bg-gray-50 border border-gray-300 rounded-md py-2 pl-10 pr-3 focus:ring-2 focus:ring-[#FFD700]"
                         />
                     </div>
@@ -156,10 +154,18 @@ export default function Register() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-gradient-to-r from-[#FFD700] to-[#B91C1C] text-black font-semibold py-2 rounded-md hover:opacity-90 transition disabled:opacity-60"
+                        className="w-full bg-gradient-to-r from-[#FFD700] to-[#B91C1C]
+             text-black font-semibold py-2 rounded-md
+             hover:opacity-90 transition disabled:opacity-60
+             flex items-center justify-center"
                     >
-                        {loading ? "Registering..." : "REGISTER"}
+                        {loading ? (
+                            <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            "REGISTER"
+                        )}
                     </button>
+
                 </form>
 
 
