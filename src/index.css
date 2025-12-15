@@ -87,6 +87,112 @@ body {
   }
 }
 
+/*
+ * Custom styles for react-datepicker to match the Tailwind/Modern theme
+ * You must add this block to your main global CSS file (e.g., index.css)
+ */
+
+/* Main calendar container styling */
+.react-datepicker {
+  font-family: 'Inter', sans-serif;
+  /* Use a modern font */
+  border: 1px solid #e2e8f0;
+  /* Light gray border */
+  border-radius: 0.75rem;
+  /* Large rounded corners */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  /* Soft shadow */
+  padding: 10px;
+}
+
+/* Header (Month/Year display) */
+.react-datepicker__header {
+  background-color: #f0fdfa;
+  /* Cyan 50 background */
+  border-bottom: 1px solid #e0f2f7;
+  /* Light cyan divider */
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  padding-top: 8px;
+}
+
+/* Month year text color */
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+  color: #083344;
+  /* Darker text */
+  font-weight: 600;
+}
+
+/* Day names (S, M, T, W, etc.) */
+.react-datepicker__day-name {
+  color: #0e7490;
+  /* Cyan 700 for day names */
+  font-size: 0.8rem;
+}
+
+/* Navigation buttons (chevrons) */
+.react-datepicker__navigation--previous,
+.react-datepicker__navigation--next {
+  border-radius: 50%;
+  height: 24px;
+  width: 24px;
+  top: 10px;
+  outline: none;
+}
+
+.react-datepicker__navigation:hover {
+  background-color: #ecfeff;
+  /* Very light cyan hover */
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #06b6d4;
+  /* Cyan color for arrows */
+}
+
+/* Day cell base styling */
+.react-datepicker__day {
+  border-radius: 50%;
+  margin: 2px;
+  line-height: 28px;
+  width: 28px;
+  height: 28px;
+  transition: all 0.2s;
+  color: #1f2937;
+  /* Dark text for dates */
+}
+
+/* Day cell hover state */
+.react-datepicker__day:hover {
+  background-color: #e0f2f7;
+  /* Light cyan hover */
+}
+
+/* Selected day */
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range {
+  background-color: #06b6d4 !important;
+  /* Primary Cyan */
+  color: white !important;
+  border-radius: 50%;
+}
+
+/* Range highlighting (between start/end) */
+.react-datepicker__day--in-range:hover {
+  background-color: #0e7490 !important;
+}
+
+/* Custom range styling for inputs */
+.react-datepicker__input-container {
+  width: 100%;
+}
+
+.modern-datepicker-popper {
+  z-index: 1000 !important;
+}
+
 
 /* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

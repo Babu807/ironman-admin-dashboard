@@ -1,20 +1,23 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Shield, Lock, User } from "lucide-react";
+import { Shield, Lock, User, Loader2 } from "lucide-react";
 import axios from "axios";
-import bgImage from "../assets/ironman-wallpaper.jpg";
+import bgImage from "../assets/ironman-wallpaper.jpg"; // <-- BG IMAGE REMAINS HERE
 import toast from "react-hot-toast";
+
+// Define the unified brand colors
+const BRAND_COLOR = "#06B6D4"; // Cyan-600
+const ACCENT_COLOR = "text-indigo-600"; // Used for secondary brand accents
+
 
 export default function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError("");
         setLoading(true);
 
         try {
@@ -65,45 +68,49 @@ export default function Login() {
     return (
         <div
             className="min-h-screen flex items-center justify-center bg-cover bg-center"
+            // BACKGROUND IMAGE IS APPLIED HERE
             style={{ backgroundImage: `url(${bgImage})` }}
         >
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+            {/* Soft dark overlay and subtle backdrop blur to ensure legibility */}
+            <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-md"></div>
 
-            <div className="relative z-10 bg-white/90 border border-[#FFD700]/40 rounded-2xl shadow-2xl p-8 w-[400px]">
-                <div className="flex flex-col items-center mb-6">
-                    <Shield className="h-10 w-10 text-[#B91C1C] mb-2" />
-                    <h1 className="text-2xl font-display font-bold tracking-wider text-[#B91C1C]">
-                        IRONMAN ADMIN
+            {/* Login Card: Clean white, subtle shadow, and rounded corners */}
+            <div className="relative z-10 bg-white/95 border border-gray-200 rounded-3xl shadow-2xl p-8 sm:p-10 w-[400px]">
+                <div className="flex flex-col items-center mb-8">
+                    {/* Logo/Icon Color: Cyan */}
+                    <Shield className="h-10 w-10 text-cyan-600 mb-3" />
+                    <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
+                        ADMIN PORTAL
                     </h1>
-                    <p className="text-gray-600 text-sm font-medium">
-                        Access the Ironman Admin Panel
+                    <p className="text-gray-500 text-sm font-medium mt-1">
+                        Secure access to the CRM dashboard
                     </p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-5">
 
-                    {/* Username */}
+                    {/* Username Input */}
                     <div className="relative">
-                        <User className="absolute left-3 top-2.5 text-gray-400 h-5 w-5" />
+                        <User className="absolute left-3 top-3 text-gray-400 h-4 w-4" />
                         <input
                             type="text"
                             placeholder="Email"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="w-full bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 rounded-md py-2 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
+                            className="w-full bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500 rounded-lg py-3 pl-10 pr-3 transition focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                             required
                         />
                     </div>
 
-                    {/* Password */}
+                    {/* Password Input */}
                     <div className="relative">
-                        <Lock className="absolute left-3 top-2.5 text-gray-400 h-5 w-5" />
+                        <Lock className="absolute left-3 top-3 text-gray-400 h-4 w-4" />
                         <input
                             type="password"
                             placeholder="Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 rounded-md py-2 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
+                            className="w-full bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500 rounded-lg py-3 pl-10 pr-3 transition focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                             required
                         />
                     </div>
@@ -112,31 +119,31 @@ export default function Login() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-gradient-to-r from-[#FFD700] to-[#B91C1C]
-             text-black font-semibold py-2 rounded-md
-             hover:opacity-90 transition disabled:opacity-60
-             flex justify-center items-center"
+                        className="w-full bg-cyan-600 text-white font-semibold py-3 rounded-lg
+                                 shadow-lg shadow-cyan-500/30
+                                 hover:bg-cyan-700 transition disabled:opacity-60
+                                 flex justify-center items-center text-sm tracking-wide"
                     >
                         {loading ? (
-                            <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                            <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
-                            "LOGIN"
+                            "SIGN IN"
                         )}
                     </button>
 
                 </form>
 
-                {/* Register Link */}
-                <div className="mt-3 text-center">
+                {/* Register Link (Using dark indigo accent color) */}
+                <div className="mt-4 text-center">
                     <Link
                         to="/register"
-                        className="text-sm text-[#B91C1C] hover:underline font-medium"
+                        className={`text-sm ${ACCENT_COLOR} hover:underline font-medium`}
                     >
                         New User? Register here
                     </Link>
                 </div>
 
-                <div className="mt-4 text-center text-xs text-gray-600">
+                <div className="mt-6 text-center text-xs text-gray-500">
                     © Stark Industries 2025
                 </div>
             </div>
