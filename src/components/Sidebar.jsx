@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-    LayoutDashboard,
     Truck,
     Users,
     Building2,
@@ -9,7 +8,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Home,
-} from "lucide-react";
+    } from "lucide-react";
 
 const BRAND_COLOR = "#06B6D4";
 
@@ -81,7 +80,7 @@ export default function Sidebar({ collapsed, onToggle, onLinkClick }) {
 
             {/* Footer */}
             <div className="p-4 text-xs text-gray-500 border-t border-gray-100 text-center flex-shrink-0">
-                {!isCollapsed ? "© 2025 IronMan Systems" : "©"}
+                {!isCollapsed ? "© 2026 IronMan Systems" : "©"}
             </div>
         </aside>
     );

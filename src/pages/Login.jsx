@@ -144,7 +144,7 @@ export default function Login() {
                 </div>
 
                 <div className="mt-6 text-center text-xs text-gray-500">
-                    © Stark Industries 2025
+                    © Stark Industries 2026
                 </div>
             </div>
         </div>

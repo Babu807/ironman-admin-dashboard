@@ -300,18 +300,36 @@ const Delivery = () => {
           <div className="hidden md:block" />
         </div>
       )}
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
         {shiftSummary.map((s) => (
-          <SummaryCard
+          <div
             key={s.shift}
-            title={`${s.shift} Shift`}
-            value={s.count}
-            detail={`${s.partners.length} Partners`}
-            detailIcon={Users}
-            Icon={Clock}
-            colorClass={s.color}
-          />
+            className="bg-white rounded-2xl p-6 flex flex-col justify-between border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 h-full"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                  {s.shift} Shift
+                </p>
+                <p className="text-3xl font-black text-gray-900 tracking-tight">
+                  {s.count}
+                </p>
+              </div>
+              {/* Dynamic Icon Accent */}
+              <div className={`p-3 rounded-xl bg-gray-50 text-gray-600`}>
+                <Clock className="w-6 h-6" />
+              </div>
+            </div>
+
+            <div className="flex items-center pt-4 border-t border-gray-50">
+              <div className="p-1.5 bg-cyan-50 text-cyan-600 rounded-lg mr-3">
+                <Users className="w-4 h-4" />
+              </div>
+              <p className="text-sm font-bold text-gray-600">
+                {s.partners.length} <span className="text-gray-400 font-medium">Partners</span>
+              </p>
+            </div>
+          </div>
         ))}
       </div>
 

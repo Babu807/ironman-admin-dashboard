@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Switch } from "@headlessui/react";
 import toast from "react-hot-toast";
-import { ChevronLeft, ChevronRight, Search, Loader2, AlertTriangle, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Loader2, AlertTriangle, Check, Upload, Download, X } from "lucide-react";
 
 // Define the unified brand colors
 const BRAND_COLOR_CLASS = "text-cyan-600";
@@ -77,6 +77,158 @@ const StatusBadge = ({ status }) => (
 );
 // --- End Helper Components ---
 
+const downloadSampleFile = () => {
+  const headers = ["first_name", "last_name", "email", "phone_number", "password"];
+  const rows = [
+    ["John", "Doe", "john@example.com", "9876543210", "Pass@123"],
+    ["Jane", "Smith", "jane@example.com", "9876543211", "Test@123"]
+  ];
+
+  const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "delivery_partners_sample.csv";
+  link.click();
+};
+
+const ImportModal = ({ isOpen, onClose, onUploadSuccess }) => {
+  const [file, setFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [result, setResult] = useState(null); // { success, failed, errors }
+
+  if (!isOpen) return null;
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+    setResult(null); // Reset results if a new file is picked
+  };
+
+  const handleClose = () => {
+    setFile(null);
+    setResult(null);
+    setIsUploading(false);
+    onClose(); // Call the parent's close function
+  };
+
+  const handleUpload = async () => {
+    if (!file) return toast.error("Please select a file first");
+
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setIsUploading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/crm/users/upload-block`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data && data.summary) {
+        setResult({
+          success: data.summary.success,
+          failed: data.summary.failed,
+          errors: data.errors || []
+        });
+        if (data.summary.success > 0) onUploadSuccess();
+      } else {
+        toast.error("Invalid response from server");
+      }
+    } catch (error) {
+      toast.error("Upload failed");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const downloadFailedRows = () => {
+    if (!result?.errors?.length) return;
+
+    const firstRecordData = result.errors[0].email || {};
+    const headers = Object.keys(firstRecordData);
+    const headerRow = [...headers, "failure_reason"].join(",");
+
+    const dataRows = result.errors.map(item => {
+      const rowData = item.email || {};
+      const reason = item.error || "Unknown error";
+
+      return headers.map(header => {
+        const value = rowData[header] ? String(rowData[header]).replace(/"/g, '""') : "";
+        return `"${value}"`;
+      }).concat(`"${reason.replace(/"/g, '""')}"`).join(",");
+    });
+
+    const csvContent = [headerRow, ...dataRows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `failed_delivery_partners_${Date.now()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 flex justify-center items-center p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative">
+        <button onClick={handleClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+          <X size={20} />
+        </button>
+
+        <h3 className="text-xl font-bold text-gray-800 mb-4">Import Delivery Partners</h3>
+
+        {!result ? (
+          <div className="space-y-4">
+            <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center">
+              <Upload className="mx-auto text-gray-400 mb-2" size={32} />
+              <input type="file" accept=".csv,.xlsx" onChange={handleFileChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100" />
+            </div>
+            <button
+              onClick={handleUpload}
+              disabled={isUploading || !file}
+              className="w-full bg-cyan-600 text-white py-2 rounded-lg font-semibold hover:bg-cyan-700 disabled:opacity-50 flex justify-center items-center gap-2"
+            >
+              {isUploading ? <Loader2 className="animate-spin" size={18} /> : <Upload size={18} />}
+              {isUploading ? "Processing..." : "Upload & Import"}
+            </button>
+          </div>
+        ) : (
+          <div className="text-center">
+            <div className="flex justify-around py-6 border-b mb-6">
+              <div>
+                <p className="text-3xl font-bold text-emerald-600">{result.success}</p>
+                <p className="text-sm text-gray-500 font-medium">Success</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-red-600">{result.failed}</p>
+                <p className="text-sm text-gray-500 font-medium">Failed</p>
+              </div>
+            </div>
+
+            {result.failed > 0 ? (
+              <button
+                onClick={downloadFailedRows}
+                className="w-full border-2 border-red-500 text-red-600 py-2 rounded-lg font-semibold flex justify-center items-center gap-2 hover:bg-red-50 transition"
+              >
+                <Download size={18} /> Download Failed Records
+              </button>
+            ) : (
+              <button onClick={handleClose} className="w-full bg-gray-800 text-white py-2 rounded-lg">Done</button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 
 const DeliveryPartners = () => {
   const [partners, setPartners] = useState([]);
@@ -86,6 +238,7 @@ const DeliveryPartners = () => {
   const [updatingId, setUpdatingId] = useState(null);
   const [search, setSearch] = useState("");
   const [isConfirming, setIsConfirming] = useState(false); // State for button loading in modal
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // NEW MODAL STATE
   const [modal, setModal] = useState({
@@ -249,6 +402,12 @@ const DeliveryPartners = () => {
   return (
     <>
 
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onUploadSuccess={loadPartners}
+      />
+
       {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={modal.isOpen}
@@ -277,6 +436,23 @@ const DeliveryPartners = () => {
             onChange={handleSearchChange}
             className="pl-9 pr-4 py-2 w-full sm:w-80 rounded-lg bg-gray-50 text-sm text-gray-800 placeholder-gray-500 border border-gray-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all outline-none shadow-inner"
           />
+        </div>
+
+        <div className="flex gap-3 items-center">
+          <button
+            onClick={downloadSampleFile}
+            className="px-4 py-2 rounded-lg border border-cyan-600 text-cyan-700 hover:bg-cyan-50 flex items-center gap-1"
+          >
+            <Download size={16} /> Sample
+          </button>
+
+          <button
+            onClick={() => setIsImportModalOpen(true)}
+            className="px-4 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 flex items-center gap-1"
+          >
+            <Upload size={16} /> Import
+          </button>
+
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Select from "react-select";
-import { ChevronLeft, ChevronRight, Filter, Download, XCircle, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, Download, XCircle, ShoppingBagIcon, CheckCircleIcon, ClockIcon, BoltIcon } from "lucide-react";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -73,18 +73,36 @@ const getDateRangeParams = (range, customDates) => {
   return { startDate, endDate };
 };
 
-const SummaryCard = ({ title, value, color, loading }) => {
-  const colors = {
-    cyan: "bg-cyan-50 text-cyan-700 border-cyan-200",
-    emerald: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    amber: "bg-amber-50 text-amber-700 border-amber-200",
-    indigo: "bg-indigo-50 text-indigo-700 border-indigo-200"
+const SummaryCard = ({ title, value, color, Icon, loading }) => {
+  // Map the color prop to specific Tailwind classes for the icon accent
+  const themeMap = {
+    cyan: "bg-cyan-50 text-cyan-600",
+    emerald: "bg-emerald-50 text-emerald-600",
+    amber: "bg-amber-50 text-amber-600",
+    indigo: "bg-indigo-50 text-indigo-600",
   };
 
+  const theme = themeMap[color] || "bg-gray-50 text-gray-600";
+
   return (
-    <div className={`${colors[color]} p-5 rounded-xl shadow-lg border flex flex-col justify-center`}>
-      <p className="text-base font-semibold opacity-90 mb-2">{title}</p>
-      {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <p className="text-3xl font-extrabold">{value}</p>}
+    <div className="bg-white rounded-2xl p-6 flex items-center justify-between border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+      <div>
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+          {title}
+        </p>
+        {loading ? (
+          <div className="h-8 w-20 bg-gray-100 animate-pulse rounded" />
+        ) : (
+          <p className="text-3xl font-black text-gray-900 tracking-tight">
+            {value}
+          </p>
+        )}
+      </div>
+      {Icon && (
+        <div className={`p-3 rounded-xl ${theme}`}>
+          <Icon className="w-7 h-7" />
+        </div>
+      )}
     </div>
   );
 };
@@ -436,10 +454,34 @@ const Reports = () => {
         <>
           {summary && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <SummaryCard title="Total Orders" value={summary.totalOrders || 0} color="cyan" loading={isLoading} />
-              <SummaryCard title="Completed" value={summary.completed || 0} color="emerald" loading={isLoading} />
-              <SummaryCard title="Avg Delivery Time" value={summary.avgDeliveryTime ? `${summary.avgDeliveryTime} hrs` : 'N/A'} color="amber" loading={isLoading} />
-              <SummaryCard title="Active Deliveries" value={summary.active || 0} color="indigo" loading={isLoading} />
+              <SummaryCard
+                title="Total Orders"
+                value={summary.totalOrders || 0}
+                color="cyan"
+                Icon={ShoppingBagIcon}
+                loading={isLoading}
+              />
+              <SummaryCard
+                title="Completed"
+                value={summary.completed || 0}
+                color="emerald"
+                Icon={CheckCircleIcon}
+                loading={isLoading}
+              />
+              <SummaryCard
+                title="Avg Delivery Time"
+                value={summary.avgDeliveryTime ? `${summary.avgDeliveryTime} hrs` : 'N/A'}
+                color="amber"
+                Icon={ClockIcon}
+                loading={isLoading}
+              />
+              <SummaryCard
+                title="Active Deliveries"
+                value={summary.active || 0}
+                color="indigo"
+                Icon={BoltIcon}
+                loading={isLoading}
+              />
             </div>
           )}
 
