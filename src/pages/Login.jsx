@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Shield, Lock, User, Loader2 } from "lucide-react";
 import axios from "axios";
-import bgImage from "../assets/ironman-wallpaper.jpg"; // <-- BG IMAGE REMAINS HERE
+import bgImage from "../assets/ironman-wallpaper.jpg";
 import toast from "react-hot-toast";
 
-// Define the unified brand colors
-const BRAND_COLOR = "#06B6D4"; // Cyan-600
-const ACCENT_COLOR = "text-indigo-600"; // Used for secondary brand accents
+// Unified brand colors
+const BRAND_COLOR = "#06B6D4";
+const ACCENT_COLOR = "text-indigo-600";
 
 
 export default function Login() {
@@ -43,14 +43,12 @@ export default function Login() {
                 return;
             }
 
-            // ✅ Success
             localStorage.setItem("token", res.data.accessToken);
             localStorage.setItem("user", JSON.stringify(user));
             localStorage.setItem("auth", "true");
 
             toast.success("Login successful! Welcome back 👋");
 
-            // slight delay so toast is visible
             setTimeout(() => {
                 navigate("/dashboard");
             }, 800);
@@ -67,22 +65,18 @@ export default function Login() {
 
     return (
         <div
-            className="min-h-screen flex items-center justify-center bg-cover bg-center"
-            // BACKGROUND IMAGE IS APPLIED HERE
+            className="min-h-screen flex items-center justify-center bg-cover bg-center font-sans"
             style={{ backgroundImage: `url(${bgImage})` }}
         >
-            {/* Soft dark overlay and subtle backdrop blur to ensure legibility */}
             <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-md"></div>
 
-            {/* Login Card: Clean white, subtle shadow, and rounded corners */}
-            <div className="relative z-10 bg-white/95 border border-gray-200 rounded-3xl shadow-2xl p-8 sm:p-10 w-[400px]">
+            <div className="relative z-10 bg-white/95 border border-gray-200 rounded-[2rem] shadow-2xl p-8 sm:p-10 w-[400px]">
                 <div className="flex flex-col items-center mb-8">
-                    {/* Logo/Icon Color: Cyan */}
                     <Shield className="h-10 w-10 text-cyan-600 mb-3" />
-                    <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
-                        ADMIN PORTAL
+                    <h1 className="text-3xl font-extrabold tracking-tighter text-gray-900 uppercase">
+                        Admin Portal
                     </h1>
-                    <p className="text-gray-500 text-sm font-medium mt-1">
+                    <p className="text-gray-500 text-[10px] font-extrabold uppercase tracking-[0.2em] mt-1">
                         Secure access to the CRM dashboard
                     </p>
                 </div>
@@ -91,26 +85,26 @@ export default function Login() {
 
                     {/* Username Input */}
                     <div className="relative">
-                        <User className="absolute left-3 top-3 text-gray-400 h-4 w-4" />
+                        <User className="absolute left-3 top-4 text-gray-400 h-4 w-4" />
                         <input
                             type="text"
-                            placeholder="Email"
+                            placeholder="EMAIL"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="w-full bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500 rounded-lg py-3 pl-10 pr-3 transition focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                            className="w-full bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-400 rounded-xl py-3.5 pl-10 pr-3 transition focus:outline-none focus:ring-2 focus:ring-cyan-500 font-extrabold text-sm tracking-tight"
                             required
                         />
                     </div>
 
                     {/* Password Input */}
                     <div className="relative">
-                        <Lock className="absolute left-3 top-3 text-gray-400 h-4 w-4" />
+                        <Lock className="absolute left-3 top-4 text-gray-400 h-4 w-4" />
                         <input
                             type="password"
-                            placeholder="Password"
+                            placeholder="PASSWORD"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500 rounded-lg py-3 pl-10 pr-3 transition focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                            className="w-full bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-400 rounded-xl py-3.5 pl-10 pr-3 transition focus:outline-none focus:ring-2 focus:ring-cyan-500 font-extrabold text-sm tracking-tight"
                             required
                         />
                     </div>
@@ -119,31 +113,31 @@ export default function Login() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-cyan-600 text-white font-semibold py-3 rounded-lg
+                        className="w-full bg-cyan-600 text-white font-extrabold py-3.5 rounded-xl
                                  shadow-lg shadow-cyan-500/30
                                  hover:bg-cyan-700 transition disabled:opacity-60
-                                 flex justify-center items-center text-sm tracking-wide"
+                                 flex justify-center items-center text-[10px] italic uppercase tracking-[0.2em]"
                     >
                         {loading ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
-                            "SIGN IN"
+                            "Sign In"
                         )}
                     </button>
 
                 </form>
 
-                {/* Register Link (Using dark indigo accent color) */}
-                <div className="mt-4 text-center">
+                <div className="mt-6 text-center">
                     <Link
                         to="/register"
-                        className={`text-sm ${ACCENT_COLOR} hover:underline font-medium`}
+                        // Font Change: Small bold label style
+                        className={`text-[10px] font-extrabold uppercase italic tracking-[0.1em] ${ACCENT_COLOR} hover:underline`}
                     >
                         New User? Register here
                     </Link>
                 </div>
 
-                <div className="mt-6 text-center text-xs text-gray-500">
+                <div className="mt-8 text-center text-[9px] font-extrabold text-gray-400 uppercase tracking-[0.2em]">
                     © Stark Industries 2026
                 </div>
             </div>

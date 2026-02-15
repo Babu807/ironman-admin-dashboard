@@ -17,33 +17,33 @@ const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confir
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+    <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-50 flex justify-center items-center p-4 font-sans">
       <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md transform transition-all border border-gray-100 overflow-hidden">
         {/* Header */}
         <div className="p-8 border-b border-gray-50 flex items-center">
           <div className="p-3 bg-amber-50 rounded-xl mr-4">
             <AlertTriangle className="w-6 h-6 text-amber-500" />
           </div>
-          <h3 className="text-xl font-black text-gray-900 italic uppercase tracking-tighter">{title}</h3>
+          <h3 className="text-xl font-extrabold text-gray-900 italic uppercase tracking-tight">{title}</h3>
         </div>
 
         {/* Body */}
         <div className="p-8">
-          <p className="text-gray-600 font-medium mb-8 leading-relaxed">{message}</p>
+          <p className="text-gray-600 font-semibold mb-8 leading-relaxed">{message}</p>
 
           {/* Actions */}
           <div className="flex justify-end space-x-3">
             <button
               onClick={onCancel}
               disabled={isConfirming}
-              className="px-6 py-3 text-xs font-black uppercase italic tracking-widest rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all disabled:opacity-70"
+              className="px-6 py-3 text-[10px] font-extrabold uppercase italic tracking-[0.2em] rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all disabled:opacity-70"
             >
               Cancel
             </button>
             <button
               onClick={onConfirm}
               disabled={isConfirming}
-              className={`px-6 py-3 text-xs font-black uppercase italic tracking-widest rounded-xl text-white shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center disabled:opacity-70 ${confirmClass}`}
+              className={`px-6 py-3 text-[10px] font-extrabold uppercase italic tracking-[0.2em] rounded-xl text-white shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center disabled:opacity-70 ${confirmClass}`}
             >
               {isConfirming ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -62,9 +62,9 @@ const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confir
 // --- Helper Components ---
 
 const ModernSpinner = () => (
-  <div className="flex flex-col justify-center items-center py-24 space-y-4">
+  <div className="flex flex-col justify-center items-center py-24 space-y-4 font-sans">
     <div className="w-12 h-12 border-4 border-red-800 border-t-amber-500 rounded-full animate-spin shadow-lg" />
-    <p className="text-[10px] font-black text-red-800 uppercase tracking-widest animate-pulse">Looking for Delivery Partners...</p>
+    <p className="text-[10px] font-extrabold text-red-800 uppercase tracking-[0.2em] animate-pulse">Looking for Delivery Partners...</p>
   </div>
 );
 
@@ -73,7 +73,7 @@ const StatusBadge = ({ status }) => {
 
   return (
     <span
-      className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase italic tracking-widest border
+      className={`px-4 py-1.5 rounded-xl text-[10px] font-extrabold uppercase italic tracking-[0.2em] border
         ${isActive
           ? "bg-emerald-50 text-emerald-700 border-emerald-100"
           : "bg-red-50 text-red-700 border-red-100"}
@@ -141,13 +141,13 @@ const ImportModal = ({ isOpen, onClose, onUploadSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+    <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-50 flex justify-center items-center p-4 font-sans">
       <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md p-8 relative border border-gray-100">
         <button onClick={handleClose} className="absolute top-6 right-6 text-gray-400 hover:text-red-800 transition-colors">
           <X size={24} strokeWidth={3} />
         </button>
 
-        <h3 className="text-2xl font-black text-gray-900 italic uppercase tracking-tighter mb-6 border-b border-gray-50 pb-4">
+        <h3 className="text-2xl font-extrabold text-gray-900 italic uppercase tracking-tight mb-6 border-b border-gray-50 pb-4">
           Import Partners
         </h3>
 
@@ -157,12 +157,12 @@ const ImportModal = ({ isOpen, onClose, onUploadSuccess }) => {
               <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-red-50 transition-colors">
                 <Upload className="text-gray-400 group-hover:text-red-800" size={32} />
               </div>
-              <input type="file" accept=".csv,.xlsx" onChange={(e) => setFile(e.target.files[0])} className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-red-50 file:text-red-800 hover:file:bg-red-800 hover:file:text-white" />
+              <input type="file" accept=".csv,.xlsx" onChange={(e) => setFile(e.target.files[0])} className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-extrabold file:uppercase file:bg-red-50 file:text-red-800 hover:file:bg-red-800 hover:file:text-white" />
             </div>
             <button
               onClick={handleUpload}
               disabled={isUploading || !file}
-              className="w-full bg-red-800 text-white py-4 rounded-2xl font-black uppercase italic tracking-widest shadow-lg shadow-red-900/20 hover:bg-red-900 disabled:opacity-50 flex justify-center items-center gap-3 transition-all active:scale-95"
+              className="w-full bg-red-800 text-white py-4 rounded-2xl font-extrabold uppercase italic tracking-[0.2em] shadow-lg shadow-red-900/20 hover:bg-red-900 disabled:opacity-50 flex justify-center items-center gap-3 transition-all active:scale-95"
             >
               {isUploading ? <Loader2 className="animate-spin" size={20} /> : <Upload size={20} />}
               {isUploading ? "Processing Sync..." : "Initialize Import"}
@@ -172,15 +172,15 @@ const ImportModal = ({ isOpen, onClose, onUploadSuccess }) => {
           <div className="text-center">
             <div className="flex justify-around py-8 border-b border-gray-50 mb-8">
               <div>
-                <p className="text-4xl font-black text-emerald-600 italic tracking-tighter">{result.success}</p>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Success</p>
+                <p className="text-4xl font-extrabold text-emerald-600 italic tracking-tighter">{result.success}</p>
+                <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-[0.2em] mt-1">Success</p>
               </div>
               <div>
-                <p className="text-4xl font-black text-red-600 italic tracking-tighter">{result.failed}</p>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Failed</p>
+                <p className="text-4xl font-extrabold text-red-600 italic tracking-tighter">{result.failed}</p>
+                <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-[0.2em] mt-1">Failed</p>
               </div>
             </div>
-            <button onClick={handleClose} className="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase italic tracking-widest">Done</button>
+            <button onClick={handleClose} className="w-full bg-gray-900 text-white py-4 rounded-2xl font-extrabold uppercase italic tracking-[0.2em]">Done</button>
           </div>
         )}
       </div>
@@ -276,7 +276,7 @@ const DeliveryPartners = () => {
   const isActivating =
     modal.newStatus === DELIVERY_PARTNER_STATUS.ACTIVE;
   return (
-    <div className="p-4 sm:p-6 lg:p-10 bg-[#F9FAFB] min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-10 bg-[#F9FAFB] min-h-screen font-sans">
       <ImportModal isOpen={isImportModalOpen} onClose={() => setIsImportModalOpen(false)} onUploadSuccess={loadPartners} />
       <ConfirmationModal
         isOpen={modal.isOpen}
@@ -289,22 +289,22 @@ const DeliveryPartners = () => {
         isConfirming={isConfirming}
       />
 
-      {/* HEADER SECTION - Matched to Dashboard */}
+      {/* HEADER SECTION */}
       <div className="mb-12 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-gray-900 tracking-tighter italic uppercase">
+          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight italic uppercase">
             Delivery Partners Management
           </h1>
-          <p className="text-gray-500 text-sm font-bold uppercase tracking-widest mt-1">
+          <p className="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
             Maintain and monitor fleet operational status
           </p>
         </div>
 
         <div className="flex gap-4 items-center">
-          <button onClick={downloadSampleFile} className="px-6 py-3 rounded-xl border border-gray-200 bg-white text-gray-600 font-black uppercase text-[10px] tracking-widest hover:border-red-800 hover:text-red-800 transition-all shadow-sm">
+          <button onClick={downloadSampleFile} className="px-6 py-3 rounded-xl border border-gray-200 bg-white text-gray-600 font-extrabold uppercase text-[10px] tracking-[0.2em] hover:border-red-800 hover:text-red-800 transition-all shadow-sm">
             Sample File
           </button>
-          <button onClick={() => setIsImportModalOpen(true)} className="px-6 py-3 rounded-xl bg-red-800 text-white font-black uppercase text-[10px] tracking-widest italic shadow-lg shadow-red-900/20 hover:bg-red-900 transition-all flex items-center gap-2">
+          <button onClick={() => setIsImportModalOpen(true)} className="px-6 py-3 rounded-xl bg-red-800 text-white font-extrabold uppercase text-[10px] tracking-[0.2em] italic shadow-lg shadow-red-900/20 hover:bg-red-900 transition-all flex items-center gap-2">
             <Upload size={14} strokeWidth={3} /> Import Partners
           </button>
         </div>
@@ -319,7 +319,7 @@ const DeliveryPartners = () => {
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="pl-12 pr-6 py-4 w-full rounded-2xl bg-gray-50 text-sm font-bold text-gray-800 placeholder-gray-400 border border-gray-100 focus:ring-2 focus:ring-red-800 focus:bg-white transition-all outline-none"
+            className="pl-12 pr-6 py-4 w-full rounded-2xl bg-gray-50 text-sm font-semibold text-gray-800 placeholder-gray-400 border border-gray-100 focus:ring-2 focus:ring-red-800 focus:bg-white transition-all outline-none"
           />
         </div>
       </div>
@@ -334,7 +334,7 @@ const DeliveryPartners = () => {
               <thead className="bg-gray-50/50">
                 <tr>
                   {["S.No", "Name", "Email", "Phone", "Status", "Action"].map((h) => (
-                    <th key={h} className="py-5 px-8 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                    <th key={h} className="py-5 px-8 text-left text-[10px] font-extrabold text-gray-500 uppercase tracking-[0.2em]">
                       {h}
                     </th>
                   ))}
@@ -342,14 +342,14 @@ const DeliveryPartners = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-50">
                 {!partners.length ? (
-                  <tr><td colSpan={6} className="text-center py-20 text-xs font-black uppercase tracking-widest text-gray-400 italic">No partners found..</td></tr>
+                  <tr><td colSpan={6} className="text-center py-20 text-[10px] font-extrabold uppercase tracking-[0.2em] text-gray-400 italic">No partners found..</td></tr>
                 ) : (
                   partners.map((p, index) => (
                     <tr key={p.id} className="hover:bg-red-50/30 transition-colors group">
                       <td className="py-5 px-8 text-sm font-mono text-gray-400">{(page - 1) * LIMIT + index + 1}</td>
-                      <td className="py-5 px-8 text-sm font-black text-gray-900 italic uppercase">{p.name}</td>
-                      <td className="py-5 px-8 text-sm font-bold text-gray-600">{p.email}</td>
-                      <td className="py-5 px-8 text-sm font-bold text-gray-600">{p.phone_number}</td>
+                      <td className="py-5 px-8 text-sm font-extrabold text-gray-900 italic uppercase tracking-tight">{p.name}</td>
+                      <td className="py-5 px-8 text-sm font-semibold text-gray-600">{p.email}</td>
+                      <td className="py-5 px-8 text-sm font-semibold text-gray-600">{p.phone_number}</td>
                       <td className="py-5 px-8"><StatusBadge status={p.status} /></td>
                       <td className="py-5 px-8">
                         <Switch
@@ -377,16 +377,16 @@ const DeliveryPartners = () => {
       {/* PAGINATION */}
       {pagination.totalPages >= 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between mt-8 p-6 bg-white rounded-[2rem] border border-gray-100 shadow-sm gap-4">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-            Showing <span className="text-red-800 font-black italic">{(page - 1) * LIMIT + 1} - {Math.min(page * LIMIT, pagination.totalItems || pagination.total)}</span>
-            <span className="mx-2">/</span> Total Partners <span className="text-red-800 font-black italic">{pagination.totalItems || pagination.total}</span>
+          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">
+            Showing <span className="text-red-800 font-extrabold italic">{(page - 1) * LIMIT + 1} - {Math.min(page * LIMIT, pagination.totalItems || pagination.total)}</span>
+            <span className="mx-2">/</span> Total Partners <span className="text-red-800 font-extrabold italic">{pagination.totalItems || pagination.total}</span>
           </p>
           <div className="flex items-center gap-3">
             <button onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1} className="w-12 h-12 flex items-center justify-center rounded-2xl border border-gray-100 bg-white text-gray-400 hover:text-red-800 disabled:opacity-30 transition-all shadow-sm">
               <ChevronLeft size={24} strokeWidth={3} />
             </button>
             <div className="px-6 h-12 flex items-center justify-center bg-gray-50 rounded-2xl border border-gray-100">
-              <span className="text-xs font-black text-gray-700 uppercase italic">Page {page} <span className="text-gray-400 mx-1">/</span> {pagination.totalPages}</span>
+              <span className="text-[10px] font-extrabold text-gray-700 uppercase italic">Page {page} <span className="text-gray-400 mx-1">/</span> {pagination.totalPages}</span>
             </div>
             <button onClick={() => setPage((p) => Math.min(p + 1, pagination.totalPages))} disabled={page >= pagination.totalPages} className="w-12 h-12 flex items-center justify-center rounded-2xl border border-gray-100 bg-white text-gray-400 hover:text-red-800 disabled:opacity-30 transition-all shadow-sm">
               <ChevronRight size={24} strokeWidth={3} />

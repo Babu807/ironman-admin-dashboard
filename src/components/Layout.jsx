@@ -23,17 +23,18 @@ const LogoutConfirmationModal = ({ isOpen, onConfirm, onCancel }) => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onCancel]);
 
-
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 font-sans">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-red-100 transform transition-all">
         <div className="bg-red-800 p-5 border-b border-red-900/10 flex items-center space-x-3">
           <LogOut className="w-6 h-6 text-white flex-shrink-0" />
-          <h3 className="text-lg font-black italic tracking-tight text-white uppercase">Confirm Logout</h3>
+          <h3 className="text-lg font-extrabold italic tracking-tight text-white uppercase">
+            Confirm Logout
+          </h3>
         </div>
 
         <div className="p-6">
-          <p className="text-gray-600 font-medium">
+          <p className="text-gray-600 font-medium leading-relaxed">
             Are you sure you want to sign out? You will need to log in again to access the dashboard.
           </p>
         </div>
@@ -41,13 +42,13 @@ const LogoutConfirmationModal = ({ isOpen, onConfirm, onCancel }) => {
         <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end space-x-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700 transition uppercase tracking-wider"
+            className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700 transition uppercase tracking-[0.15em]"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-6 py-2 text-sm font-black text-white bg-red-800 rounded-xl shadow-lg shadow-red-900/20 hover:bg-red-900 transition active:scale-95 uppercase tracking-wider"
+            className="px-6 py-2 text-sm font-extrabold text-white bg-red-800 rounded-xl shadow-lg shadow-red-900/20 hover:bg-red-900 transition active:scale-95 uppercase tracking-wider"
           >
             Sign Out
           </button>
@@ -76,9 +77,7 @@ export default function Layout() {
 
   const confirmLogout = () => {
     localStorage.removeItem("auth");
-
     toast.success("Logout successful!");
-
     setTimeout(() => {
       navigate("/login", { replace: true });
     }, 800);
@@ -101,7 +100,8 @@ export default function Layout() {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-screen bg-gray-50 text-gray-900 font-sans">
+    <div className="flex h-screen bg-gray-50 text-gray-900 font-sans selection:bg-red-100 selection:text-red-900">
+      {/* Sidebar Section */}
       <div className={`fixed inset-y-0 left-0 z-50 ${isMobileMenuOpen ? 'block' : 'hidden'} lg:relative lg:block`}>
         {isMobileMenuOpen && (
           <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
@@ -114,6 +114,7 @@ export default function Layout() {
       </div>
 
       <div className="flex flex-col flex-1 min-w-0">
+        {/* Header Section */}
         <header className="sticky top-0 z-50 flex items-center justify-between h-16 px-6 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
           <div className="flex items-center space-x-4">
             <button
@@ -124,7 +125,7 @@ export default function Layout() {
             >
               <Menu className="h-6 w-6" />
             </button>
-            <h1 className="text-xl font-black tracking-tighter text-gray-800 italic uppercase">
+            <h1 className="text-xl font-extrabold tracking-tighter text-gray-800 italic uppercase">
               {routeTitle}
             </h1>
           </div>
@@ -135,7 +136,7 @@ export default function Layout() {
               <input
                 type="text"
                 placeholder="Quick search..."
-                className="pl-10 pr-4 py-2 w-56 rounded-xl bg-gray-100/50 text-sm font-medium border border-transparent focus:bg-white focus:ring-2 focus:ring-red-800/10 focus:border-red-800 transition-all outline-none"
+                className="pl-10 pr-4 py-2 w-56 rounded-xl bg-gray-100/50 text-sm font-semibold border border-transparent focus:bg-white focus:ring-2 focus:ring-red-800/10 focus:border-red-800 transition-all outline-none"
               />
             </div>
 
@@ -146,17 +147,17 @@ export default function Layout() {
 
             <div className="w-px h-6 bg-gray-200"></div>
 
+            {/* Profile Dropdown */}
             <div className="relative" ref={profileRef}>
               <button
                 title="View Profile"
                 aria-expanded={isProfileOpen}
                 className="flex items-center justify-center h-10 w-10 
-             rounded-full bg-red-50 text-red-800 font-bold 
-             border-2 border-amber-500 shadow-sm hover:scale-105 
+             rounded-full bg-red-50 text-red-800 font-extrabold 
+             border border-amber-500 shadow-sm hover:scale-105 
              transition-all focus:outline-none focus:ring-2 focus:ring-red-500"
                 onClick={() => setIsProfileOpen(prev => !prev)}
               >
-
                 <User className="w-5 h-5" />
               </button>
 
@@ -167,19 +168,24 @@ export default function Layout() {
                       <User className="w-5 h-5" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-black text-white italic">TONY STARK</span>
-                      <span className="text-[10px] text-red-100 flex items-center font-bold uppercase tracking-widest">
+                      <span className="text-sm font-extrabold text-white italic tracking-wide">
+                        TONY STARK
+                      </span>
+                      <span className="text-[10px] text-red-100 flex items-center font-bold uppercase tracking-[0.2em]">
                         <Shield className="w-3 h-3 mr-1 text-amber-500" />
                         Administrator
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-2" style={{ display: 'none' }}>
+                  <div className="p-2 hidden">
                     <a
                       href="/profile"
                       className="flex items-center space-x-3 p-3 text-sm font-bold text-gray-700 rounded-xl hover:bg-red-50 hover:text-red-800 transition"
-                      onClick={() => setIsProfileOpen(false)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsProfileOpen(false);
+                      }}
                     >
                       <Settings className="w-4 h-4" />
                       <span>Profile Settings</span>
@@ -190,6 +196,7 @@ export default function Layout() {
             </div>
 
             <button
+              title="Logout"
               className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-600 transition focus:outline-none focus:ring-2 focus:ring-red-500"
               onClick={handleLogoutClick}
             >
@@ -198,6 +205,7 @@ export default function Layout() {
           </div>
         </header>
 
+        {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto p-6 sm:p-8 bg-[#f8fafc]">
           <div className="max-w-7xl mx-auto">
             <Outlet />

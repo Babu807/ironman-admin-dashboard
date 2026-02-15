@@ -6,7 +6,7 @@ export default function Navbar({ title = "Dashboard" }) {
         <header className="sticky top-0 z-40 flex items-center justify-between h-14 px-6 border-b border-[#3a0a0a] bg-gradient-to-r from-[#8B0000] via-[#B22222] to-[#A0522D] shadow-[0_2px_10px_rgba(255,215,0,0.25)]">
             {/* Left side - Page title */}
             <div className="flex items-center gap-3">
-                <h1 className="text-lg font-display text-[#FFD700] tracking-wide drop-shadow-[0_0_4px_rgba(255,215,0,0.4)]">
+                <h1 className="text-lg text-[#FFD700] tracking-wide drop-shadow-[0_0_4px_rgba(255,215,0,0.4)]">
                     {title}
                 </h1>
                 <span className="text-sm text-gray-300 font-medium">Super Admin</span>

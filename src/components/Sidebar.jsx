@@ -32,12 +32,12 @@ export default function Sidebar({ collapsed, onToggle, onLinkClick }) {
     return (
         <aside
             className={`h-full relative ${isCollapsed ? "w-20" : "w-64"} 
-                bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-2xl flex-shrink-0 z-50`}
+                bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-2xl flex-shrink-0 z-50 font-sans`}
         >
             {/* Header: Logo and Toggle */}
             <div className="flex items-center justify-between p-4 border-b border-gray-100 h-16">
                 {!isCollapsed && (
-                    <h1 className="font-black text-2xl tracking-tighter text-red-800 italic uppercase">
+                    <h1 className="font-extrabold text-2xl tracking-tighter text-red-800 italic uppercase">
                         IRON<span className="text-amber-500">MAN</span>
                     </h1>
                 )}
@@ -68,7 +68,7 @@ export default function Sidebar({ collapsed, onToggle, onLinkClick }) {
                             to={path}
                             onClick={handleLinkClick}
                             className={`group flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-4 px-4'} py-3 
-                                        rounded-xl text-sm font-bold transition-all duration-200 
+                                        rounded-xl text-sm font-extrabold transition-all duration-200 
                                         ${active
                                     ? "bg-red-800 text-white shadow-lg shadow-red-900/30"
                                     : "text-gray-500 hover:bg-red-50 hover:text-red-800"
@@ -81,7 +81,7 @@ export default function Sidebar({ collapsed, onToggle, onLinkClick }) {
                             />
 
                             {!isCollapsed && (
-                                <span className={`uppercase tracking-tight ${active ? 'font-black' : 'font-bold'}`}>
+                                <span className={`uppercase tracking-tight ${active ? 'font-extrabold italic' : 'font-extrabold'}`}>
                                     {name}
                                 </span>
                             )}
@@ -99,12 +99,12 @@ export default function Sidebar({ collapsed, onToggle, onLinkClick }) {
             <div className="p-6 border-t border-gray-100 flex-shrink-0">
                 {!isCollapsed ? (
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                        <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-[0.2em] text-center">
                             © 2026 IronMan Systems
                         </p>
                     </div>
                 ) : (
-                    <p className="text-[10px] font-black text-red-800 text-center">IM</p>
+                    <p className="text-[10px] font-extrabold text-red-800 text-center uppercase tracking-tighter">IM</p>
                 )}
             </div>
         </aside>

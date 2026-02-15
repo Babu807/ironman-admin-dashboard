@@ -11,7 +11,7 @@ module.exports = {
         'iron-cyan': '#0EA5E9',
       },
       fontFamily: {
-        display: ['Orbitron', 'Rajdhani', 'sans-serif'],
+        sans: ['Manrope', 'ui-sans-serif', 'system-ui'],
       },
       boxShadow: {
         'glow-red': '0 6px 30px rgba(197,48,48,0.18)',
