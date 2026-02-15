@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Select from "react-select";
-import { ChevronLeft, ChevronRight, Filter, Download, XCircle, ShoppingBagIcon, CheckCircleIcon, ClockIcon, BoltIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, Download, XCircle, ShoppingBagIcon, CheckCircleIcon, ClockIcon, BoltIcon, Search, UserCog } from "lucide-react";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -10,29 +10,36 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
 
-const BRAND_COLOR_CLASS = "text-cyan-600";
-const BRAND_BG_CLASS = "bg-cyan-50";
 const MIN_LOAD_TIME = 500;
 
 const selectStyles = {
   control: (p, s) => ({
     ...p,
-    borderRadius: "0.5rem",
+    borderRadius: "1rem",
     minHeight: "44px",
-    boxShadow: s.isFocused ? "0 0 0 1px #06b6d4" : "none",
-    borderColor: s.isFocused ? "#06b6d4" : p.borderColor,
-    "&:hover": { borderColor: s.isFocused ? "#06b6d4" : p.borderColor }
+    backgroundColor: "#f9fafb",
+    border: "1px solid #f3f4f6",
+    fontSize: "0.875rem",
+    fontWeight: "700",
+    textTransform: "uppercase",
+    boxShadow: s.isFocused ? "0 0 0 2px rgba(153, 27, 27, 0.1)" : "none",
+    borderColor: s.isFocused ? "#991b1b" : "#f3f4f6",
+    "&:hover": { borderColor: "#991b1b" }
   }),
   option: (p, s) => ({
     ...p,
-    backgroundColor: s.isFocused ? "#e0f7fa" : "white",
-    color: "#1f2937"
+    backgroundColor: s.isFocused ? "#fef2f2" : "white",
+    color: s.isFocused ? "#991b1b" : "#1f2937",
+    fontWeight: "700",
+    fontSize: "0.75rem",
+    textTransform: "uppercase"
   })
 };
 
-const ModernSpinner = ({ size = "w-10 h-10", color = BRAND_COLOR_CLASS }) => (
-  <div className="flex justify-center items-center py-12">
-    <div className={`${size} border-4 ${color.replace("text-", "border-")} border-t-transparent rounded-full animate-spin`} />
+const ModernSpinner = () => (
+  <div className="flex flex-col justify-center items-center py-24 space-y-4">
+    <div className="w-12 h-12 border-4 border-red-800 border-t-amber-500 rounded-full animate-spin shadow-lg" />
+    <p className="text-[10px] font-black text-red-800 uppercase tracking-widest animate-pulse">Looking for Orders & Statistics...</p>
   </div>
 );
 
@@ -42,19 +49,10 @@ const getDateRangeParams = (range, customDates) => {
   let endDate = today.format('YYYY-MM-DD');
 
   switch (range) {
-    case "today":
-      startDate = today.format('YYYY-MM-DD');
-      break;
-    case "yesterday":
-      startDate = today.subtract(1, "day").format('YYYY-MM-DD');
-      endDate = startDate;
-      break;
-    case "last_7_days":
-      startDate = today.subtract(7, "day").format('YYYY-MM-DD');
-      break;
-    case "this_month":
-      startDate = today.startOf("month").format('YYYY-MM-DD');
-      break;
+    case "today": startDate = today.format('YYYY-MM-DD'); break;
+    case "yesterday": startDate = today.subtract(1, "day").format('YYYY-MM-DD'); endDate = startDate; break;
+    case "last_7_days": startDate = today.subtract(7, "day").format('YYYY-MM-DD'); break;
+    case "this_month": startDate = today.startOf("month").format('YYYY-MM-DD'); break;
     case "last_month":
       startDate = today.subtract(1, "month").startOf("month").format('YYYY-MM-DD');
       endDate = today.subtract(1, "month").endOf("month").format('YYYY-MM-DD');
@@ -63,118 +61,68 @@ const getDateRangeParams = (range, customDates) => {
       startDate = customDates.start ? dayjs(customDates.start).format('YYYY-MM-DD') : null;
       endDate = customDates.end ? dayjs(customDates.end).format('YYYY-MM-DD') : null;
       break;
-    case "entire_data":
-    default:
-      startDate = null;
-      endDate = null;
-      break;
+    default: startDate = null; endDate = null; break;
   }
-
   return { startDate, endDate };
 };
 
 const SummaryCard = ({ title, value, color, Icon, loading }) => {
-  // Map the color prop to specific Tailwind classes for the icon accent
   const themeMap = {
-    cyan: "bg-cyan-50 text-cyan-600",
+    cyan: "bg-red-50 text-red-800",
     emerald: "bg-emerald-50 text-emerald-600",
     amber: "bg-amber-50 text-amber-600",
-    indigo: "bg-indigo-50 text-indigo-600",
+    indigo: "bg-blue-50 text-blue-600",
   };
-
   const theme = themeMap[color] || "bg-gray-50 text-gray-600";
 
   return (
-    <div className="bg-white rounded-2xl p-6 flex items-center justify-between border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
-      <div>
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-          {title}
-        </p>
-        {loading ? (
-          <div className="h-8 w-20 bg-gray-100 animate-pulse rounded" />
-        ) : (
-          <p className="text-3xl font-black text-gray-900 tracking-tight">
-            {value}
-          </p>
-        )}
-      </div>
-      {Icon && (
-        <div className={`p-3 rounded-xl ${theme}`}>
-          <Icon className="w-7 h-7" />
+    <div className="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{title}</p>
+          {loading ? (
+            <div className="h-8 w-20 bg-gray-100 animate-pulse rounded" />
+          ) : (
+            <p className="text-3xl font-black text-gray-900 tracking-tighter italic">{value}</p>
+          )}
         </div>
-      )}
+        <div className={`p-4 rounded-2xl ${theme}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+      </div>
     </div>
   );
 };
 
 const StatusBadge = ({ status }) => {
-  let c = "bg-gray-100 text-gray-800";
-  if (status === "Delivered") c = "bg-emerald-100 text-emerald-800";
-  else if (status === "Picked-Up" || status === "In Progress") c = "bg-cyan-100 text-cyan-800";
-  else if (status === "Requested") c = "bg-yellow-100 text-yellow-800";
-  else if (status === "Cancelled") c = "bg-red-100 text-red-800";
-
-  return <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${c}`}>{status}</span>;
-};
-
-
-const DateFilterDropdown = ({ selectedRange, setSelectedRange, setCustomDates }) => {
-  const handleRangeChange = (e) => {
-    const newRange = e.target.value;
-    setSelectedRange(newRange);
-    if (newRange !== "custom_range") {
-      setCustomDates({ start: null, end: null });
-    }
-  };
+  let c = "border-gray-200 text-gray-500";
+  if (status === "Delivered") c = "border-emerald-200 bg-emerald-50 text-emerald-700";
+  else if (status === "Picked-Up" || status === "In Progress") c = "border-blue-200 bg-blue-50 text-blue-700";
+  else if (status === "Requested") c = "border-amber-200 bg-amber-50 text-amber-700";
+  else if (status === "Cancelled") c = "border-red-200 bg-red-50 text-red-700";
 
   return (
-    <div className="relative inline-flex items-center bg-white border border-gray-300 rounded-lg shadow-sm p-2 h-11 w-full flex-shrink-0">
-      <CalendarDaysIcon className="w-5 h-5 text-cyan-600 mr-2 flex-shrink-0" />
-      <select
-        value={selectedRange}
-        onChange={handleRangeChange}
-        className="appearance-none bg-transparent text-sm font-semibold text-gray-700 focus:outline-none cursor-pointer pr-6 h-full w-full"
-      >
-        <option value="entire_data">Entire Data (All Time)</option>
-        <option value="today">Today</option>
-        <option value="yesterday">Yesterday</option>
-        <option value="last_7_days">Last 7 Days</option>
-        <option value="this_month">This Month</option>
-        <option value="last_month">Last Month</option>
-        <option value="custom_range">Custom Range...</option>
-      </select>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-        </svg>
-      </div>
-    </div>
+    <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase italic tracking-widest border ${c}`}>
+      {status}
+    </span>
   );
 };
-
 
 const Reports = () => {
   const [orders, setOrders] = useState([]);
   const [summary, setSummary] = useState(null);
   const [pagination, setPagination] = useState(null);
-
   const [isLoading, setIsLoading] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
   const [timerComplete, setTimerComplete] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
-
   const [status, setStatus] = useState(null);
   const [hubStatus, setHubStatus] = useState(null);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-
   const [selectedRange, setSelectedRange] = useState("entire_data");
-  // customDates now holds the actual dates picked, but doesn't trigger fetch until applyTrigger
   const [customDates, setCustomDates] = useState({ start: null, end: null });
-
-  // StoredDates holds the *applied* custom dates, used for API call
   const [appliedCustomDates, setAppliedCustomDates] = useState({ start: null, end: null });
-
   const [page, setPage] = useState(1);
   const limit = 10;
 
@@ -194,7 +142,6 @@ const Reports = () => {
 
   useEffect(() => {
     if (initialLoad) {
-      setTimerComplete(false);
       const t = setTimeout(() => {
         setTimerComplete(true);
         setInitialLoad(false);
@@ -204,10 +151,7 @@ const Reports = () => {
   }, [initialLoad]);
 
   useEffect(() => {
-    if (initialLoad) {
-      setIsLoading(!timerComplete);
-      return;
-    }
+    if (initialLoad) { setIsLoading(!timerComplete); return; }
     setIsLoading(isFetching);
   }, [isFetching, timerComplete, initialLoad]);
 
@@ -216,37 +160,19 @@ const Reports = () => {
     return () => clearTimeout(t);
   }, [search]);
 
-  // Function called by the 'Apply' button
   const applyRange = () => {
-    if (customDates.start && customDates.end) {
-      // FIX: Transfer the dates from temporary state (customDates) to applied state (appliedCustomDates)
-      // This is the explicit trigger for the custom range fetch.
-      setAppliedCustomDates(customDates);
-    }
+    if (customDates.start && customDates.end) setAppliedCustomDates(customDates);
   };
 
   const fetchReports = useCallback(async () => {
     setIsFetching(true);
     const token = localStorage.getItem("token");
-
-    // FIX: Use appliedCustomDates for custom range, and customDates for the initial 
-    // calculation for non-custom ranges.
     const datesToUse = selectedRange === 'custom_range' ? appliedCustomDates : customDates;
     const { startDate, endDate } = getDateRangeParams(selectedRange, datesToUse);
 
-    // FIX: CRITICAL CHECK
-    // If we are in custom range mode, but the applied dates are still null, DO NOT FETCH.
-    // This happens immediately after selecting "Custom Range" but before clicking "Apply".
     if (selectedRange === 'custom_range' && (!appliedCustomDates.start || !appliedCustomDates.end)) {
-      setIsFetching(false);
-      setOrders([]);
-      setSummary(null);
-      setPagination(null);
-      return;
+      setIsFetching(false); setOrders([]); setSummary(null); setPagination(null); return;
     }
-
-    // If not in custom range, we can fetch immediately (since selectedRange is a dependency)
-    // or if in custom range, we rely on appliedCustomDates change.
 
     const params = new URLSearchParams();
     if (status) params.append("status", status.value);
@@ -261,13 +187,11 @@ const Reports = () => {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/crm/reports/orders?${params}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
       if (res.status === 403) {
         localStorage.removeItem("token");
         window.location.href = "/login";
         return;
       }
-
       const data = await res.json();
       setOrders(data.data || []);
       setSummary(data.summary || null);
@@ -275,64 +199,33 @@ const Reports = () => {
     } finally {
       setIsFetching(false);
     }
-  }, [status, hubStatus, selectedRange, appliedCustomDates, debouncedSearch, page]); // Only trigger fetch when selectedRange or appliedCustomDates changes
+  }, [status, hubStatus, selectedRange, appliedCustomDates, debouncedSearch, page]);
 
-  useEffect(() => {
-    fetchReports();
-  }, [fetchReports]);
+  useEffect(() => { fetchReports(); }, [fetchReports]);
 
-  // Reset page on filter/search change
-  useEffect(() => {
-    setPage(1);
-  }, [status, hubStatus, selectedRange, appliedCustomDates, debouncedSearch]);
+  useEffect(() => { setPage(1); }, [status, hubStatus, selectedRange, appliedCustomDates, debouncedSearch]);
 
   const clearFilters = () => {
-    setStatus(null);
-    setHubStatus(null);
-    setSearch("");
-    setSelectedRange("entire_data");
-    setCustomDates({ start: null, end: null });
-    setAppliedCustomDates({ start: null, end: null }); // Clear applied dates too
-    setPage(1);
+    setStatus(null); setHubStatus(null); setSearch("");
+    setSelectedRange("entire_data"); setCustomDates({ start: null, end: null });
+    setAppliedCustomDates({ start: null, end: null }); setPage(1);
   };
 
-  const buildExportUrl = (type) => {
-    const datesToUse = selectedRange === 'custom_range' ? appliedCustomDates : customDates;
-    const { startDate, endDate } = getDateRangeParams(selectedRange, datesToUse);
-
-    const params = new URLSearchParams();
-    if (status) params.append("status", status.value);
-    if (hubStatus) params.append("hubStatus", hubStatus.value);
-    if (startDate) params.append('start_date', startDate);
-    if (endDate) params.append('end_date', endDate);
-    if (debouncedSearch) params.append("search", debouncedSearch);
-    params.append("exportType", type);
-    return `${import.meta.env.VITE_API_BASE_URL}/api/v1/crm/reports/orders?${params}`;
-  };
-
-  const formatExportData = (d) =>
-    d.map((o, i) => ({
-      sno: i + 1,
-      order_id: o.id,
-      order_number: o.order_number,
-      status: o.status,
-      hub_status: o.hubStatus,
-      partner: o.partner,
-      delivery_date: o.date,
-      delivery_time_hours: o.deliveryTime
-    }));
+  const formatExportData = (d) => d.map((o, i) => ({
+    sno: i + 1, order_id: o.id, order_number: o.order_number, status: o.status,
+    hub_status: o.hubStatus, partner: o.partner, delivery_date: o.date, delivery_time_hours: o.deliveryTime
+  }));
 
   const exportCSV = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch(buildExportUrl("csv"), { headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/crm/reports/orders?exportType=csv`, { headers: { Authorization: `Bearer ${token}` } });
     const data = await res.json();
-    const csv = Papa.unparse(formatExportData(data.data));
-    saveAs(new Blob([csv], { type: "text/csv;charset=utf-8;" }), "orders-report.csv");
+    saveAs(new Blob([Papa.unparse(formatExportData(data.data))], { type: "text/csv" }), "orders-report.csv");
   };
 
   const exportXLSX = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch(buildExportUrl("xlsx"), { headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/crm/reports/orders?exportType=xlsx`, { headers: { Authorization: `Bearer ${token}` } });
     const data = await res.json();
     const ws = XLSX.utils.json_to_sheet(formatExportData(data.data));
     const wb = XLSX.utils.book_new();
@@ -340,202 +233,190 @@ const Reports = () => {
     XLSX.writeFile(wb, "orders-report.xlsx");
   };
 
-  const isFilterActive = status || hubStatus || search || selectedRange !== "entire_data";
+  const isFilterActive =
+    status !== null ||
+    hubStatus !== null ||
+    search.trim() !== "" ||
+    selectedRange !== "entire_data" ||
+    customDates.start !== null ||
+    customDates.end !== null;
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border p-6 sm:p-8">
-      <h1 className="text-4xl font-extrabold text-gray-900 mb-8 border-b-4 border-cyan-400 pb-2 inline-block">📊 Reports</h1>
+    <div className="p-4 sm:p-6 lg:p-10 bg-[#F9FAFB] min-h-screen">
+      {/* HEADER SECTION - Original Labels */}
+      <div className="mb-12">
+        <h1 className="text-4xl font-black text-gray-900 tracking-tighter italic uppercase">
+          Reports
+        </h1>
+        <p className="text-gray-500 text-sm font-bold uppercase tracking-widest mt-1">
+          Operational Analytics & Order Statistics
+        </p>
+      </div>
 
-      <div className="bg-gray-50 border rounded-xl p-6 mb-8">
-        <div className="flex items-center text-xl font-semibold mb-4">
-          <Filter className="w-6 h-6 mr-2 text-cyan-600" /> Filter Data
+      {/* FILTER PANEL */}
+      <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 mb-8">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="p-2 bg-red-50 rounded-lg">
+            <Filter className="w-5 h-5 text-red-800" />
+          </div>
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Filter Data</h2>
         </div>
 
-        {/* ROW 1: SELECTS, DROPDOWN, CLEAR FILTER */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Select options={statusOptions} value={status} onChange={setStatus} placeholder="Order Status" styles={selectStyles} />
-
           <Select options={hubStatusOptions} value={hubStatus} onChange={setHubStatus} placeholder="Hub Status" styles={selectStyles} />
 
-          {/* Date Range Dropdown */}
-          <DateFilterDropdown
-            selectedRange={selectedRange}
-            setSelectedRange={setSelectedRange}
-            setCustomDates={setCustomDates}
-          />
+          <div className="relative">
+            <CalendarDaysIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-800 z-10" />
+            <select
+              value={selectedRange}
+              onChange={(e) => { setSelectedRange(e.target.value); if (e.target.value !== "custom_range") setCustomDates({ start: null, end: null }); }}
+              className="pl-10 pr-4 py-3 w-full rounded-2xl bg-gray-50 text-[10px] font-black uppercase italic tracking-widest text-gray-800 border border-gray-100 focus:ring-2 focus:ring-red-800 outline-none appearance-none"
+            >
+              <option value="entire_data">Entire Data (All Time)</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="last_7_days">Last 7 Days</option>
+              <option value="this_month">This Month</option>
+              <option value="last_month">Last Month</option>
+              <option value="custom_range">Custom Range...</option>
+            </select>
+          </div>
 
-          {/* Clear Filters Button */}
           <button
-            disabled={!isFilterActive}
             onClick={clearFilters}
-            className={`flex items-center justify-center px-4 py-2 h-11 rounded-lg text-sm font-medium border ${!isFilterActive ? "text-gray-400 bg-gray-100 cursor-not-allowed border-gray-200" : "text-red-600 bg-red-50 hover:bg-red-100 border-red-200 transition duration-150"}`}
+            disabled={!isFilterActive}
+            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase italic tracking-widest transition-all flex items-center justify-center gap-2 border ${isFilterActive
+              ? "border-red-600 bg-red-50 text-red-800 shadow-[0_0_15px_rgba(153,27,27,0.1)] hover:bg-red-800 hover:text-white active:scale-95"
+              : "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed"
+              }`}
           >
-            <XCircle className="w-4 h-4 mr-1" /> Clear Filters
+            <XCircle className={`w-4 h-4 ${isFilterActive ? "animate-pulse" : ""}`} />
+            Clear Filters
           </button>
         </div>
 
-        {/* ROW 2 (CONDITIONAL): CUSTOM DATE PICKERS */}
         {selectedRange === "custom_range" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4 transition-all duration-300 pt-2 border-t border-gray-200">
-            {/* Column 1: Start Date */}
-            <div className="relative z-40">
-              <DatePicker
-                selected={customDates.start}
-                onChange={(date) => setCustomDates((p) => ({ ...p, start: date }))}
-                selectsStart
-                startDate={customDates.start}
-                endDate={customDates.end}
-                placeholderText="Start Date"
-                className="border border-gray-300 rounded-lg p-2.5 h-11 text-sm w-full text-center focus:ring-cyan-500 focus:border-cyan-500"
-                wrapperClassName="w-full"
-                popperClassName="modern-datepicker-popper"
-              />
-            </div>
-
-            {/* Column 2: End Date */}
-            <div className="relative z-40">
-              <DatePicker
-                selected={customDates.end}
-                onChange={(date) => setCustomDates((p) => ({ ...p, end: date }))}
-                selectsEnd
-                startDate={customDates.start}
-                endDate={customDates.end}
-                minDate={customDates.start}
-                placeholderText="End Date"
-                className="border border-gray-300 rounded-lg p-2.5 h-11 text-sm w-full text-center focus:ring-cyan-500 focus:border-cyan-500"
-                wrapperClassName="w-full"
-                popperClassName="modern-datepicker-popper"
-              />
-            </div>
-
-            {/* Column 3: Apply Button */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 pt-6 border-t border-gray-50">
+            <DatePicker
+              selected={customDates.start}
+              onChange={(date) => setCustomDates((p) => ({ ...p, start: date }))}
+              placeholderText="Start Date"
+              className="w-full px-6 py-3 rounded-2xl bg-gray-50 text-[10px] font-black uppercase border border-gray-100 outline-none focus:ring-2 focus:ring-red-800"
+            />
+            <DatePicker
+              selected={customDates.end}
+              onChange={(date) => setCustomDates((p) => ({ ...p, end: date }))}
+              placeholderText="End Date"
+              className="w-full px-6 py-3 rounded-2xl bg-gray-50 text-[10px] font-black uppercase border border-gray-100 outline-none focus:ring-2 focus:ring-red-800"
+            />
             <button
               onClick={applyRange}
-              // Check if the currently picked dates are valid to enable Apply
-              disabled={!customDates.start || !customDates.end}
-              className="bg-cyan-600 text-white text-sm font-semibold py-2 px-4 h-11 rounded-lg shadow-md disabled:bg-gray-400 hover:bg-cyan-700 transition duration-150 w-full"
+              className="bg-red-800 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-red-900/20"
             >
               Apply
             </button>
-
-            {/* Column 4: Empty space for alignment */}
-            <div />
           </div>
         )}
 
-        {/* ROW 3: SEARCH AND EXPORT ACTIONS */}
-        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 border-t pt-4 mt-2">
-
-          {/* Search Input */}
-          <input
-            type="text"
-            placeholder="Search by Order ID or Partner..."
-            className="w-full border border-gray-300 rounded-lg p-2.5 h-11 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-
-          {/* Export Buttons */}
-          <div className="flex gap-3 justify-end flex-shrink-0">
-            <button onClick={exportCSV} className="flex items-center bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm h-11 hover:bg-cyan-700 shadow-md transition duration-150">
-              <Download className="w-4 h-4 mr-1" /> CSV
+        <div className="flex flex-col md:flex-row gap-4 pt-6 border-t border-gray-50">
+          <div className="relative flex-1 group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-red-800 transition-colors" />
+            <input
+              type="text"
+              placeholder="Search by Order ID or Partner..."
+              className="w-full pl-14 pr-6 py-4 rounded-[1.5rem] bg-gray-50 text-xs font-bold text-gray-800 placeholder-gray-300 border border-gray-50 focus:bg-white focus:ring-4 focus:ring-red-800/5 transition-all outline-none italic uppercase"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-3">
+            <button onClick={exportCSV} className="flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
+              <Download className="w-4 h-4 text-red-500" /> CSV
             </button>
-
-            <button onClick={exportXLSX} className="flex items-center bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm h-11 hover:bg-emerald-700 shadow-md transition duration-150">
-              <Download className="w-4 h-4 mr-1" /> XLSX
+            <button onClick={exportXLSX} className="flex items-center gap-2 bg-emerald-700 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-800 transition-all">
+              <Download className="w-4 h-4 text-white" /> XLSX
             </button>
           </div>
         </div>
       </div>
 
-      {isLoading && <ModernSpinner />}
-
-      {!isLoading && (
+      {isLoading ? <ModernSpinner /> : (
         <>
           {summary && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <SummaryCard
-                title="Total Orders"
-                value={summary.totalOrders || 0}
-                color="cyan"
-                Icon={ShoppingBagIcon}
-                loading={isLoading}
-              />
-              <SummaryCard
-                title="Completed"
-                value={summary.completed || 0}
-                color="emerald"
-                Icon={CheckCircleIcon}
-                loading={isLoading}
-              />
-              <SummaryCard
-                title="Avg Delivery Time"
-                value={summary.avgDeliveryTime ? `${summary.avgDeliveryTime} hrs` : 'N/A'}
-                color="amber"
-                Icon={ClockIcon}
-                loading={isLoading}
-              />
-              <SummaryCard
-                title="Active Deliveries"
-                value={summary.active || 0}
-                color="indigo"
-                Icon={BoltIcon}
-                loading={isLoading}
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+              <SummaryCard title="Total Orders" value={summary.totalOrders || 0} color="cyan" Icon={ShoppingBagIcon} />
+              <SummaryCard title="Completed" value={summary.completed || 0} color="emerald" Icon={CheckCircleIcon} />
+              <SummaryCard title="Avg Delivery Time" value={summary.avgDeliveryTime ? `${summary.avgDeliveryTime} hrs` : 'N/A'} color="amber" Icon={ClockIcon} />
+              <SummaryCard title="Active Deliveries" value={summary.active || 0} color="indigo" Icon={BoltIcon} />
             </div>
           )}
 
-          <div className="overflow-x-auto border rounded-xl shadow-lg">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className={BRAND_BG_CLASS}>
-                <tr>
-                  {["#", "Order ID", "Order Number", "Status", "Hub Status", "Partner", "Date", "Delivery Time (hrs)"].map((h) => (
-                    <th key={h} className={`p-4 text-left text-xs font-bold ${BRAND_COLOR_CLASS} uppercase tracking-wider`}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-gray-100">
-                {orders.length === 0 ? (
+          <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden w-full">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full table-fixed divide-y divide-gray-100 border-collapse">
+                <thead className="bg-gray-50/50">
                   <tr>
-                    <td colSpan="8" className="text-center py-10 text-gray-500 text-lg">No orders found.</td>
+                    <th className="w-[6%] px-6 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">S.NO</th>
+                    <th className="w-[8%] px-4 py-5 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">Order ID</th>
+                    <th className="w-[16%] px-4 py-5 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">Order NUMBER</th>
+
+                    <th className="w-[10%] px-4 py-5 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">Status</th>
+                    <th className="w-[12%] px-4 py-5 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">Hub Status</th>
+
+                    <th className="w-[10%] px-4 py-5 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">PARTNER</th>
+                    <th className="w-[8%] px-4 py-5 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">Date</th>
+                    <th className="w-[8%] px-6 py-5 text-right text-[10px] font-black text-gray-500 uppercase tracking-widest">DELIVERY TIME (HRS)</th>
                   </tr>
-                ) : (
-                  orders.map((o, i) => (
-                    <tr key={o.id} className="hover:bg-gray-50">
-                      <td className="p-4 text-sm text-gray-500">{(page - 1) * limit + i + 1}</td>
-                      <td className="p-4 text-sm font-medium text-gray-800">{o.id}</td>
-                      <td className="p-4 text-sm text-gray-800">{o.order_number}</td>
-                      <td className="p-4"><StatusBadge status={o.status} /></td>
-                      <td className="p-4 text-sm text-gray-800">{o.hubStatus}</td>
-                      <td className="p-4 text-sm text-gray-800">{o.partner}</td>
-                      <td className="p-4 text-sm text-gray-800">{moment(o.date).format("YYYY-MM-DD")}</td>
-                      <td className="p-4 text-sm font-semibold text-gray-800">{o.deliveryTime}</td>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {!orders.length ? (
+                    <tr>
+                      <td colSpan={6} className="text-center py-20 text-xs font-black uppercase tracking-widest text-gray-400 italic">
+                        <UserCog className="w-12 h-12 text-gray-200 mx-auto mb-4" />
+                        No Orders & Statistics found..
+                      </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (orders.map((o, i) => (
+                    <tr key={o.id} className="hover:bg-red-50/30 transition-colors group">
+                      <td className="px-6 py-5 text-sm font-mono text-gray-400">{(page - 1) * limit + i + 1}</td>
+                      <td className="px-4 py-5 text-sm font-black text-gray-900 italic uppercase truncate">#{o.id}</td>
+                      <td className="px-4 py-5 text-sm font-bold text-gray-600 truncate">{o.order_number}</td>
+
+                      <td className="px-4 py-5 overflow-hidden whitespace-nowrap">
+                        <StatusBadge status={o.status} />
+                      </td>
+
+                      <td className="px-4 py-5">
+                        <div className="w-full">
+                          <p className="text-[9px] font-black uppercase text-gray-400 tracking-tighter leading-tight break-all line-clamp-2" title={o.hubStatus}>
+                            {o.hubStatus}
+                          </p>
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-5 text-sm font-bold text-gray-800 truncate">{o.partner}</td>
+                      <td className="px-4 py-5 text-sm font-mono text-gray-500 whitespace-nowrap">{moment(o.date).format("DD.MM.YY")}</td>
+                      <td className="px-6 py-5 text-sm font-black text-red-800 italic text-right">{o.deliveryTime}H</td>
+                    </tr>
+                  )))
+                  }
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {pagination?.totalPages >= 1 && (
-            <div className="flex items-center justify-between mt-8 p-4 bg-gray-50 rounded-xl border">
-              <p className="text-sm text-gray-700">
-                Showing <span className="font-semibold text-cyan-700">{(page - 1) * limit + 1}</span> to{" "}
-                <span className="font-semibold text-cyan-700">{Math.min(page * limit, pagination.total)}</span> of{" "}
-                <span className="font-semibold text-cyan-700">{pagination.total}</span>
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-8 p-6 bg-white rounded-[2rem] border border-gray-100 shadow-sm gap-4">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                Showing <span className="text-red-800 font-black italic">{(page - 1) * limit + 1}-{Math.min(page * limit, pagination.total)}</span> / {pagination.total}
               </p>
-
-              <div className="flex items-center gap-2">
-                <button onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1} className="w-10 h-10 flex items-center justify-center rounded-xl border bg-white">
-                  <ChevronLeft size={20} />
-                </button>
-
-                <span className="text-sm font-semibold">Page {page} of {pagination.totalPages}</span>
-
-                <button onClick={() => setPage((p) => Math.min(p + 1, pagination.totalPages))} disabled={page >= pagination.totalPages} className="w-10 h-10 flex items-center justify-center rounded-xl border bg-white">
-                  <ChevronRight size={20} />
-                </button>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1} className="w-12 h-12 flex items-center justify-center rounded-2xl border border-gray-100 bg-white text-gray-400 hover:text-red-800 transition-all shadow-sm"><ChevronLeft size={24} strokeWidth={3} /></button>
+                <div className="px-6 h-12 flex items-center justify-center bg-gray-50 rounded-2xl border border-gray-100">
+                  <span className="text-xs font-black text-gray-700 uppercase italic">Page {page} / {pagination.totalPages}</span>
+                </div>
+                <button onClick={() => setPage(p => Math.min(p + 1, pagination.totalPages))} disabled={page >= pagination.totalPages} className="w-12 h-12 flex items-center justify-center rounded-2xl border border-gray-100 bg-white text-gray-400 hover:text-red-800 transition-all shadow-sm"><ChevronRight size={24} strokeWidth={3} /></button>
               </div>
             </div>
           )}

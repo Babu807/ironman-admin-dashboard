@@ -8,9 +8,11 @@ import {
     ChevronLeft,
     ChevronRight,
     Home,
-    } from "lucide-react";
+} from "lucide-react";
 
-const BRAND_COLOR = "#06B6D4";
+// IronMan Palette Constants
+// const IRON_RED = "#991B1B";
+// const IRON_GOLD = "#F59E0B";
 
 const menuItems = [
     { name: "Dashboard", path: "/dashboard", icon: Home },
@@ -27,51 +29,66 @@ export default function Sidebar({ collapsed, onToggle, onLinkClick }) {
     const toggleSidebar = onToggle || (() => { });
     const handleLinkClick = onLinkClick || (() => { });
 
-
     return (
         <aside
             className={`h-full relative ${isCollapsed ? "w-20" : "w-64"} 
-                bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-xl flex-shrink-0 z-50`}
+                bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-2xl flex-shrink-0 z-50`}
         >
-            {/* Header: Logo/Title and Collapse Toggle */}
+            {/* Header: Logo and Toggle */}
             <div className="flex items-center justify-between p-4 border-b border-gray-100 h-16">
                 {!isCollapsed && (
-                    <h1 className="font-extrabold text-2xl tracking-wide text-cyan-600">
-                        IRONMAN
+                    <h1 className="font-black text-2xl tracking-tighter text-red-800 italic uppercase">
+                        IRON<span className="text-amber-500">MAN</span>
                     </h1>
                 )}
 
                 <button
                     type="button"
                     onClick={toggleSidebar}
-                    className={`p-2 rounded-full transition ${isCollapsed ? 'ml-auto' : ''} 
-                        text-cyan-600 hover:bg-cyan-50 focus:outline-none focus:ring-2 focus:ring-cyan-500`}
-                    title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                    className={`p-2 rounded-xl transition-all ${isCollapsed ? 'mx-auto' : ''} 
+        text-red-800 hover:bg-red-50 
+        focus:outline-none focus:ring-2 focus:ring-red-500 
+        border border-transparent hover:border-red-100`}
                 >
                     {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                 </button>
+
             </div>
 
-            {/* Menu */}
-            <nav className="flex-1 p-3 space-y-2 overflow-y-auto">
+            {/* Navigation Menu */}
+            <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto mt-4">
                 {menuItems.map(({ name, path, icon: Icon }) => {
-                    const active = location.pathname === path;
+                    const active =
+                        location.pathname === path ||
+                        location.pathname.startsWith(`${path}/`);
                     return (
                         <Link
+                            title={isCollapsed ? name : undefined}
                             key={path}
                             to={path}
                             onClick={handleLinkClick}
-                            className={`group flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2 
-                                        rounded-xl text-sm font-medium transition-all duration-300 
+                            className={`group flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-4 px-4'} py-3 
+                                        rounded-xl text-sm font-bold transition-all duration-200 
                                         ${active
-                                    ? "bg-cyan-600 text-white shadow-md"
-                                    : "text-gray-700 hover:bg-cyan-50 hover:text-cyan-600"
+                                    ? "bg-red-800 text-white shadow-lg shadow-red-900/30"
+                                    : "text-gray-500 hover:bg-red-50 hover:text-red-800"
                                 }`}
                         >
-                            <Icon size={18} className={`${active ? 'text-white' : 'text-gray-500 group-hover:text-cyan-600'}`} />
+                            <Icon
+                                size={18}
+                                className={`${active ? 'text-amber-400' : 'text-gray-400 group-hover:text-red-800'} transition-colors`}
+                                strokeWidth={active ? 2.5 : 2}
+                            />
 
                             {!isCollapsed && (
-                                <span className={`${isCollapsed ? 'hidden' : 'block'}`}>{name}</span>
+                                <span className={`uppercase tracking-tight ${active ? 'font-black' : 'font-bold'}`}>
+                                    {name}
+                                </span>
+                            )}
+
+                            {/* Active Indicator Pip */}
+                            {active && !isCollapsed && (
+                                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
                             )}
                         </Link>
                     );
@@ -79,8 +96,16 @@ export default function Sidebar({ collapsed, onToggle, onLinkClick }) {
             </nav>
 
             {/* Footer */}
-            <div className="p-4 text-xs text-gray-500 border-t border-gray-100 text-center flex-shrink-0">
-                {!isCollapsed ? "© 2026 IronMan Systems" : "©"}
+            <div className="p-6 border-t border-gray-100 flex-shrink-0">
+                {!isCollapsed ? (
+                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                            © 2026 IronMan Systems
+                        </p>
+                    </div>
+                ) : (
+                    <p className="text-[10px] font-black text-red-800 text-center">IM</p>
+                )}
             </div>
         </aside>
     );

@@ -6,7 +6,6 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   AreaChart,
   Area,
@@ -22,8 +21,14 @@ import {
   CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
-const VIBRANT_COLORS = ["#06B6D4", "#10B981", "#F59E0B", "#8B5CF6", "#EF4444", "#3B82F6"];
+// --- THEME CONSTANTS ---
+// Semantic palette for data visualization (intuitive colors)
+const DATA_VIZ_PALETTE = ["#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#06B6D4", "#6366F1"];
+// IronMan HUD palette for system elements
+const IRON_RED = "#991B1B";
+const IRON_GOLD = "#F59E0B";
 
 // --- 1. LOGIC HELPERS ---
 
@@ -65,7 +70,6 @@ const DateFilter = ({ selectedRange, setSelectedRange, customDates, setCustomDat
     if (newRange !== 'custom_range') setCustomDates({ start: null, end: null });
   };
 
-  // RESTORED: Clear Filter Logic
   const handleClear = (e) => {
     e.preventDefault();
     setSelectedRange("entire_data");
@@ -75,21 +79,19 @@ const DateFilter = ({ selectedRange, setSelectedRange, customDates, setCustomDat
 
   return (
     <div className="flex flex-col items-end space-y-2 relative z-50">
-      <div className="flex flex-col sm:flex-row items-end sm:items-center space-x-0 sm:space-x-3 space-y-3 sm:space-y-0">
-
-        {/* RESTORED: Clear Filter Button */}
+      <div className="flex flex-col sm:flex-row items-end sm:items-center space-x-0 sm:space-x-4 space-y-3 sm:space-y-0">
         {selectedRange !== "entire_data" && (
           <button
             onClick={handleClear}
-            className="text-sm font-bold text-cyan-600 hover:text-cyan-800 underline decoration-cyan-300 underline-offset-4 transition-colors mb-2 sm:mb-0"
+            className="text-xs font-black text-red-800 hover:text-red-900 uppercase tracking-widest transition-colors mb-2 sm:mb-0 italic"
           >
             Clear Filter
           </button>
         )}
 
-        <div className="relative inline-flex items-center bg-white border border-gray-200 rounded-xl shadow-sm h-11 px-3">
-          <CalendarDaysIcon className="w-5 h-5 text-cyan-600 mr-2" />
-          <select value={selectedRange} onChange={handleRangeChange} className="bg-transparent text-sm font-bold text-gray-700 outline-none cursor-pointer pr-4">
+        <div className="relative inline-flex items-center bg-white border border-gray-200 rounded-xl shadow-sm h-11 px-4 hover:border-red-200 transition-all">
+          <CalendarDaysIcon className="w-5 h-5 text-red-800 mr-2" />
+          <select value={selectedRange} onChange={handleRangeChange} className="bg-transparent text-sm font-bold text-gray-700 outline-none cursor-pointer pr-4 uppercase tracking-tight">
             <option value="entire_data">All Time</option>
             <option value="today">Today</option>
             <option value="yesterday">Yesterday</option>
@@ -101,11 +103,22 @@ const DateFilter = ({ selectedRange, setSelectedRange, customDates, setCustomDat
         </div>
 
         {showCustomPicker && (
-          <div className="flex items-center space-x-2 bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
-            <DatePicker selected={customDates.start} onChange={(d) => setCustomDates(p => ({ ...p, start: d }))} placeholderText="Start" className="w-24 text-xs text-center border-none focus:ring-0" />
-            <span className="text-gray-400">-</span>
-            <DatePicker selected={customDates.end} onChange={(d) => setCustomDates(p => ({ ...p, end: d }))} placeholderText="End" className="w-24 text-xs text-center border-none focus:ring-0" />
-            <button onClick={handleApplyCustomRange} className="bg-cyan-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-cyan-700">Apply</button>
+          <div className="flex items-center space-x-2 bg-white p-2 rounded-xl border border-red-100 shadow-xl">
+            <DatePicker selected={customDates.start} onChange={(d) => setCustomDates(p => ({ ...p, start: d }))} placeholderText="Start" aria-label="Start date" className="w-24 text-xs font-bold text-center border-none focus:ring-2 focus:ring-red-500 rounded"
+            />
+            <span className="text-gray-400 font-bold">-</span>
+            <DatePicker selected={customDates.end} onChange={(d) => setCustomDates(p => ({ ...p, end: d }))} placeholderText="End" aria-label="End date" className="w-24 text-xs font-bold text-center border-none focus:ring-2 focus:ring-red-500 rounded" />
+            <button
+              onClick={handleApplyCustomRange}
+              disabled={!customDates.start || !customDates.end}
+              className="
+              bg-red-800 text-white text-[10px] font-black px-4 py-2 rounded-lg uppercase
+              hover:bg-red-900 transition
+              disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-red-800
+              "
+            >
+              Apply
+            </button>
           </div>
         )}
       </div>
@@ -114,38 +127,39 @@ const DateFilter = ({ selectedRange, setSelectedRange, customDates, setCustomDat
 };
 
 const SummaryCard = ({ title, value, colorClass, Icon, isLoading }) => {
-  const colorMap = {
-    "bg-cyan-500": "text-cyan-600 bg-cyan-50",
-    "bg-emerald-500": "text-emerald-600 bg-emerald-50",
-    "bg-amber-500": "text-amber-600 bg-amber-50",
-    "bg-indigo-500": "text-indigo-600 bg-indigo-50",
-    "bg-green-600": "text-green-600 bg-green-50"
+  // Mapping original props to semantic, UI-friendly data colors
+  const themeMap = {
+    "bg-cyan-500": "text-blue-600 bg-blue-50 border-blue-100",    // Info/Total
+    "bg-emerald-500": "text-emerald-600 bg-emerald-50 border-emerald-100", // Success
+    "bg-amber-500": "text-amber-600 bg-amber-50 border-amber-100", // Pending/Active
+    "bg-indigo-500": "text-indigo-600 bg-indigo-50 border-indigo-100", // Meta/Time
+    "bg-green-600": "text-emerald-700 bg-emerald-100 border-emerald-200" // Success High
   };
-  const theme = colorMap[colorClass] || "text-gray-600 bg-gray-50";
+  const theme = themeMap[colorClass] || "text-gray-600 bg-gray-50 border-gray-100";
 
   return (
-    <div className="bg-white rounded-2xl p-6 flex items-center justify-between border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 h-full">
+    <div className="bg-white rounded-2xl p-6 flex items-center justify-between border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 h-full group">
       <div>
         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{title}</p>
-        {isLoading ? <div className="h-8 w-20 bg-gray-100 animate-pulse rounded" /> : <p className="text-3xl font-black text-gray-900">{value}</p>}
+        {isLoading ? <div className="h-8 w-20 bg-gray-100 animate-pulse rounded" /> : <p className="text-3xl font-black text-gray-900 tracking-tight leading-none">{value}</p>}
       </div>
-      <div className={`p-3 rounded-xl ${theme}`}>
-        <Icon className="w-8 h-8" />
+      <div className={`p-4 rounded-2xl transition-transform duration-300 group-hover:scale-110 ${theme} border`}>
+        <Icon className="w-7 h-7" strokeWidth={2} />
       </div>
     </div>
   );
 };
 
 const ChartCard = ({ title, children, isLoading, isEmpty, extraHeader }) => (
-  <div className="bg-white p-7 rounded-3xl shadow-sm border border-gray-100 h-full">
+  <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 h-full">
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-      <h2 className="text-xl font-black text-gray-800 tracking-tight border-l-4 border-cyan-500 pl-4">{title}</h2>
+      <h2 className="text-xl font-black text-gray-900 tracking-tighter uppercase italic border-l-4 border-red-800 pl-4">{title}</h2>
       {extraHeader}
     </div>
     {isLoading ? (
-      <div className="flex justify-center items-center py-20"><div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" /></div>
+      <div className="flex justify-center items-center py-20"><div className="w-10 h-10 border-4 border-red-800 border-t-amber-500 rounded-full animate-spin" /></div>
     ) : isEmpty ? (
-      <div className="text-center py-20 text-gray-400 font-medium">No data available</div>
+      <div className="text-center py-20 text-gray-400 font-bold uppercase tracking-widest text-xs">No Records Found</div>
     ) : children}
   </div>
 );
@@ -167,6 +181,7 @@ const Dashboard = () => {
   const [loadingAvg, setLoadingAvg] = useState(true);
   const [loadingStage, setLoadingStage] = useState(true);
 
+  const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem("token");
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -178,7 +193,6 @@ const Dashboard = () => {
     if (endDate) queryParams.append('end_date', endDate);
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
-    // If custom range is selected but dates aren't set, don't fetch yet
     if (selectedRange === 'custom_range' && (!startDate || !endDate)) {
       setLoadingSummary(false); setLoadingBreakdown(false); setLoadingAvg(false); setLoadingStage(false);
       return;
@@ -190,7 +204,7 @@ const Dashboard = () => {
         const res = await fetch(`${BASE_URL}/api/v1/crm/dashboard/${endpoint}${query}`, { method: "GET", headers: authHeaders });
         if (res.status === 403) {
           localStorage.removeItem("token");
-          window.location.href = "/login";
+          navigate("/login", { replace: true });
           return;
         }
         const result = await res.json();
@@ -210,7 +224,7 @@ const Dashboard = () => {
     fetchData('stages', setStageSummary, setLoadingStage, (data) =>
       Array.isArray(data) ? data.map(item => ({ stage: item.status, orders: item.orders, percent: item.percent, avg: parseFloat(item.avg_time) })) : []
     );
-  }, [selectedRange, applyTrigger]);
+  }, [selectedRange, applyTrigger, customDates]);
 
   const formatStageLabel = (s) => s?.replace(/[_-]/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) || "";
   const totalOrders = Number(summary.find(s => s.title === "Total Orders")?.value) || 0;
@@ -218,14 +232,14 @@ const Dashboard = () => {
   const completionRate = totalOrders > 0 ? ((completedOrders / totalOrders) * 100).toFixed(1) : 0;
 
   return (
-    <div className="bg-gray-50/50 min-h-screen p-6 lg:p-10">
+    <div className="bg-[#F9FAFB] min-h-screen p-6 lg:p-10">
       <div className="max-w-7xl mx-auto">
 
-        {/* HEADER */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+        {/* HEADER - IronMan HUD Style */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
           <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">Analytics Dashboard</h1>
-            <p className="text-gray-500 text-sm">Real-time delivery performance tracking.</p>
+            <h1 className="text-4xl font-black text-gray-900 tracking-tighter italic uppercase">Analytics Dashboard</h1>
+            <p className="text-gray-500 text-sm font-bold uppercase tracking-widest mt-1">Real-time Performance Metrics</p>
           </div>
           <DateFilter
             selectedRange={selectedRange}
@@ -236,7 +250,7 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* BLOCK 1: STATUS PIE & VOLUME CARDS */}
+        {/* BLOCK 1: STATUS PIE & VOLUME CARDS - Semantic Data Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-1">
             <ChartCard title="Order Status" isLoading={loadingBreakdown} isEmpty={breakdown.length === 0}>
@@ -244,16 +258,16 @@ const Dashboard = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={breakdown} cx="50%" cy="50%" innerRadius={70} outerRadius={95} paddingAngle={8} dataKey="value">
-                      {breakdown.map((_, i) => <Cell key={i} fill={VIBRANT_COLORS[i % VIBRANT_COLORS.length]} cornerRadius={6} />)}
+                      {breakdown.map((_, i) => <Cell key={i} fill={DATA_VIZ_PALETTE[i % DATA_VIZ_PALETTE.length]} cornerRadius={8} />)}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)", fontWeight: 'bold' }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="grid grid-cols-2 gap-2 mt-4">
+              <div className="grid grid-cols-2 gap-3 mt-6">
                 {breakdown.map((item, i) => (
-                  <div key={i} className="flex items-center text-[10px] font-bold text-gray-400 uppercase">
-                    <span className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: VIBRANT_COLORS[i % VIBRANT_COLORS.length] }} />
+                  <div key={i} className="flex items-center text-[10px] font-black text-gray-500 uppercase tracking-tighter">
+                    <span className="w-2.5 h-2.5 rounded-full mr-2 shadow-sm" style={{ backgroundColor: DATA_VIZ_PALETTE[i % DATA_VIZ_PALETTE.length] }} />
                     {formatStageLabel(item.name)}
                   </div>
                 ))}
@@ -269,18 +283,18 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* BLOCK 2: TREND AREA CHART & AVG TIME HERO */}
+        {/* BLOCK 2: TREND AREA CHART - IronMan Style */}
         <div className="grid grid-cols-1 gap-8 mb-8">
           <ChartCard
-            title="Delivery Trend"
+            title="Performance Trend"
             isLoading={loadingAvg}
             isEmpty={avgDeliveryData.length === 0}
             extraHeader={
-              <div className="flex items-center bg-gray-50 px-5 py-2 rounded-2xl border border-gray-100">
-                <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg mr-4"><ClockIcon className="w-5 h-5" /></div>
+              <div className="flex items-center bg-red-800 px-6 py-3 rounded-2xl shadow-lg shadow-red-900/20 border border-red-900">
+                <div className="p-2 bg-white/10 text-amber-400 rounded-lg mr-4 border border-white/10"><ClockIcon className="w-5 h-5" /></div>
                 <div>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Global Avg</p>
-                  <p className="text-xl font-black text-gray-800">{summary.find(s => s.title === "Avg Delivery Time")?.value || "0 mins"}</p>
+                  <p className="text-[10px] font-black text-red-100 uppercase tracking-widest leading-none mb-1">Global Avg</p>
+                  <p className="text-xl font-black text-white italic tracking-tighter leading-none">{summary.find(s => s.title === "Avg Delivery Time")?.value || "0 mins"}</p>
                 </div>
               </div>
             }
@@ -289,37 +303,41 @@ const Dashboard = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={avgDeliveryData}>
                   <defs>
-                    <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#06B6D4" stopOpacity={0.15} /><stop offset="95%" stopColor="#06B6D4" stopOpacity={0.01} />
+                    <linearGradient id="ironGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#991B1B" stopOpacity={0.2} /><stop offset="95%" stopColor="#991B1B" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
-                  <Tooltip contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }} />
-                  <Area type="monotone" dataKey="avgTime" stroke="#06B6D4" strokeWidth={4} fill="url(#trendGradient)" dot={{ r: 4, fill: "#06B6D4", strokeWidth: 2, stroke: "#fff" }} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 'bold', fill: '#94a3b8' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 'bold', fill: '#94a3b8' }} />
+                  <Tooltip contentStyle={{ borderRadius: "16px", border: "none", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)", fontWeight: 'bold' }} />
+                  <Area type="monotone" dataKey="avgTime" stroke="#991B1B" strokeWidth={4} fill="url(#ironGradient)" dot={{ r: 5, fill: "#F59E0B", strokeWidth: 3, stroke: "#fff" }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </ChartCard>
         </div>
 
-        {/* TABLE SECTION */}
+        {/* TABLE SECTION - HUD Style */}
         <ChartCard title="Stage Analysis Table" isLoading={loadingStage} isEmpty={stageSummary.length === 0}>
-          <div className="overflow-x-auto rounded-xl border border-gray-100">
+          <div className="overflow-x-auto rounded-2xl border border-gray-100">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
-                <tr className="text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                  <th className="py-4 px-6">Stage</th><th className="py-4 px-6">Orders</th><th className="py-4 px-6">Success %</th><th className="py-4 px-6">Avg (Hrs)</th>
+                <tr className="text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                  <th className="py-5 px-8">Stage</th><th className="py-5 px-8">Orders</th><th className="py-5 px-8">Success %</th><th className="py-5 px-8">Avg (Hrs)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 bg-white">
                 {stageSummary.map((row, i) => (
-                  <tr key={i} className="hover:bg-cyan-50/50 transition duration-150">
-                    <td className="py-4 px-6 text-sm font-bold text-gray-700">{formatStageLabel(row.stage)}</td>
-                    <td className="py-4 px-6 text-sm text-gray-600">{row.orders}</td>
-                    <td className="py-4 px-6"><span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-md text-[10px] font-bold">{row.percent}%</span></td>
-                    <td className="py-4 px-6 text-sm font-mono text-cyan-600">{row.avg.toFixed(2)}</td>
+                  <tr key={i} className="hover:bg-red-50/50 transition-colors">
+                    <td className="py-5 px-8 text-sm font-black text-gray-800 italic uppercase tracking-tight">{formatStageLabel(row.stage)}</td>
+                    <td className="py-5 px-8 text-sm font-bold text-gray-600">{row.orders}</td>
+                    <td className="py-5 px-8">
+                      <span className="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-[10px] font-black uppercase tracking-tighter">
+                        {row.percent}%
+                      </span>
+                    </td>
+                    <td className="py-5 px-8 text-sm font-black text-red-800 tracking-tighter italic">{row.avg.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>

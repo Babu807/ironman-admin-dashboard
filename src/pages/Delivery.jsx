@@ -6,6 +6,15 @@ import "react-datepicker/dist/react-datepicker.css";
 
 const MIN_LOAD_TIME = 500;
 const LIMIT = 10;
+const DATE_RANGES = Object.freeze({
+  ALL: "entire_data",
+  TODAY: "today",
+  YESTERDAY: "yesterday",
+  LAST_7_DAYS: "last_7_days",
+  THIS_MONTH: "this_month",
+  LAST_MONTH: "last_month",
+  CUSTOM: "custom_range",
+});
 
 const getDateRangeParams = (range, customDates) => {
   const today = dayjs();
@@ -13,28 +22,35 @@ const getDateRangeParams = (range, customDates) => {
   let endDate = today.format('YYYY-MM-DD');
 
   switch (range) {
-    case "today":
-      startDate = today.format('YYYY-MM-DD');
+    case DATE_RANGES.TODAY:
+      startDate = today.format("YYYY-MM-DD");
       break;
-    case "yesterday":
-      startDate = today.subtract(1, "day").format('YYYY-MM-DD');
+
+    case DATE_RANGES.YESTERDAY:
+      startDate = today.subtract(1, "day").format("YYYY-MM-DD");
       endDate = startDate;
       break;
-    case "last_7_days":
-      startDate = today.subtract(7, "day").format('YYYY-MM-DD');
+
+    case DATE_RANGES.LAST_7_DAYS:
+      startDate = today.subtract(7, "day").format("YYYY-MM-DD");
       break;
-    case "this_month":
-      startDate = today.startOf("month").format('YYYY-MM-DD');
+
+    case DATE_RANGES.THIS_MONTH:
+      startDate = today.startOf("month").format("YYYY-MM-DD");
       break;
-    case "last_month":
-      startDate = today.subtract(1, "month").startOf("month").format('YYYY-MM-DD');
-      endDate = today.subtract(1, "month").endOf("month").format('YYYY-MM-DD');
+
+    case DATE_RANGES.LAST_MONTH:
+      startDate = today.subtract(1, "month").startOf("month").format("YYYY-MM-DD");
+      endDate = today.subtract(1, "month").endOf("month").format("YYYY-MM-DD");
       break;
-    case "custom_range":
-      startDate = customDates.start ? dayjs(customDates.start).format('YYYY-MM-DD') : null;
-      endDate = customDates.end ? dayjs(customDates.end).format('YYYY-MM-DD') : null;
+
+    case DATE_RANGES.CUSTOM:
+      startDate = customDates.start ? dayjs(customDates.start).format("YYYY-MM-DD") : null;
+      endDate = customDates.end ? dayjs(customDates.end).format("YYYY-MM-DD") : null;
       break;
+
     default:
+      console.error("Invalid date range term:", range);
       startDate = null;
       endDate = null;
   }
@@ -42,27 +58,9 @@ const getDateRangeParams = (range, customDates) => {
   return { startDate, endDate };
 };
 
-const ModernSpinner = ({ size = "w-10 h-10", color = "border-cyan-600" }) => (
-  <div className="flex justify-center items-center py-12">
-    <div className={`${size} border-4 ${color} border-t-transparent rounded-full animate-spin`} />
-  </div>
-);
-
-const SummaryCard = ({ title, value, detail, Icon, colorClass, detailIcon: DetailIcon }) => (
-  <div className={`${colorClass} rounded-2xl p-5 flex items-center justify-between shadow-xl transition duration-300 transform hover:scale-[1.02]`}>
-    <div className="flex flex-col items-start">
-      <p className="text-3xl font-extrabold text-white">{value}</p>
-      <p className="text-sm font-semibold text-white mt-0.5 opacity-90">{title}</p>
-      {detail && (
-        <p className="text-xs text-white/80 mt-2 flex items-center">
-          {DetailIcon && <DetailIcon className="w-3 h-3 mr-1" />}
-          {detail}
-        </p>
-      )}
-    </div>
-    <div className="p-1 rounded-full bg-transparent flex-shrink-0">
-      <Icon className="w-10 h-10 text-gray-900/50" />
-    </div>
+const ModernSpinner = () => (
+  <div className="flex justify-center items-center py-24">
+    <div className="w-12 h-12 border-4 border-red-800 border-t-amber-500 rounded-full animate-spin shadow-lg" />
   </div>
 );
 
@@ -74,26 +72,21 @@ const DateFilterDropdown = ({ selectedRange, setSelectedRange, setCustomDates })
   };
 
   return (
-    <div className="relative inline-flex items-center bg-white border border-gray-300 rounded-lg shadow-sm p-2 h-11 w-full flex-shrink-0">
-      <CalendarDays className="w-5 h-5 text-cyan-600 mr-2 flex-shrink-0" />
+    <div className="relative inline-flex items-center bg-white border border-gray-200 rounded-xl shadow-sm px-4 h-11 w-full hover:border-red-300 transition-all">
+      <CalendarDays className="w-5 h-5 text-red-800 mr-2 flex-shrink-0" />
       <select
         value={selectedRange}
         onChange={handleRangeChange}
-        className="appearance-none bg-transparent text-sm font-semibold text-gray-700 focus:outline-none cursor-pointer pr-6 h-full w-full"
+        className="appearance-none bg-transparent text-sm font-bold text-gray-700 focus:outline-none cursor-pointer pr-6 h-full w-full"
       >
-        <option value="entire_data">Entire Data (All Time)</option>
-        <option value="today">Today</option>
-        <option value="yesterday">Yesterday</option>
-        <option value="last_7_days">Last 7 Days</option>
-        <option value="this_month">This Month</option>
-        <option value="last_month">Last Month</option>
-        <option value="custom_range">Custom Range...</option>
+        <option value={DATE_RANGES.ALL}>Entire Data (All Time)</option>
+        <option value={DATE_RANGES.TODAY}>Today</option>
+        <option value={DATE_RANGES.YESTERDAY}>Yesterday</option>
+        <option value={DATE_RANGES.LAST_7_DAYS}>Last 7 Days</option>
+        <option value={DATE_RANGES.THIS_MONTH}>This Month</option>
+        <option value={DATE_RANGES.LAST_MONTH}>Last Month</option>
+        <option value={DATE_RANGES.CUSTOM}>Custom Range…</option>
       </select>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-        <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
-          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-        </svg>
-      </div>
     </div>
   );
 };
@@ -120,6 +113,14 @@ const Delivery = () => {
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    const valid = Object.values(DATE_RANGES);
+    if (!valid.includes(selectedRange)) {
+      console.error("Invalid selectedRange detected:", selectedRange);
+      setSelectedRange(DATE_RANGES.ALL);
+    }
+  }, [selectedRange]);
+
   const applyRange = () => {
     if (customDates.start && customDates.end) {
       setAppliedCustomDates(customDates);
@@ -129,9 +130,7 @@ const Delivery = () => {
 
   const fetchOrders = useCallback(async () => {
     setIsFetching(true);
-
     const { startDate, endDate } = getDateRangeParams(selectedRange, appliedCustomDates);
-
     const params = new URLSearchParams();
     if (startDate) params.append("start_date", startDate);
     if (endDate) params.append("end_date", endDate);
@@ -145,13 +144,11 @@ const Delivery = () => {
 
     try {
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-
       if (res.status === 403) {
         localStorage.removeItem("token");
         window.location.href = "/login";
         return;
       }
-
       const data = await res.json();
       if (!data?.status) return;
 
@@ -164,14 +161,8 @@ const Delivery = () => {
     }
   }, [selectedRange, appliedCustomDates, filters.partner, filters.shift, page]);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [selectedRange, appliedCustomDates, filters.partner, filters.shift]);
-
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+  useEffect(() => { setPage(1); }, [selectedRange, appliedCustomDates, filters.partner, filters.shift]);
   useEffect(() => {
     if (!isFetching && timerComplete) setLoading(false);
     else setLoading(true);
@@ -181,18 +172,11 @@ const Delivery = () => {
     return shiftConfig.map((shift) => {
       const shiftOrders = orders.filter((o) => o.shift === shift.name);
       const uniquePartners = [...new Set(shiftOrders.map((o) => o.partner))];
-
       return {
         shift: shift.name,
         time: `${shift.start} - ${shift.end}`,
         count: shiftOrders.length,
         partners: uniquePartners,
-        color:
-          shift.name === "Morning"
-            ? "bg-cyan-600"
-            : shift.name === "Evening"
-              ? "bg-indigo-600"
-              : "bg-emerald-600",
       };
     });
   }, [orders, shiftConfig]);
@@ -202,41 +186,38 @@ const Delivery = () => {
 
   if (loading) return <ModernSpinner />;
 
-  const isFilterActive =
-    filters.partner || filters.shift || selectedRange !== "entire_data";
+  const isFilterActive = filters.partner || filters.shift || selectedRange !== DATE_RANGES.ALL;
 
   return (
-    <div className="p-1 sm:p-2">
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 border-b-4 border-cyan-300 pb-1 inline-block">
+    <div className="p-4 sm:p-6 lg:p-10 bg-[#F9FAFB] min-h-screen">
+      <div className="mb-12">
+        <h1 className="text-4xl font-black text-gray-900 tracking-tighter italic uppercase">
           Daily Delivery Overview
         </h1>
-        <p className="text-gray-500 mt-1">Deliveries scheduled for the selected period. Total {totalOrders} orders across {totalPartners} partners.</p>
+        <p className="text-gray-500 text-sm font-bold uppercase tracking-widest mt-1">
+          Deliveries scheduled for the selected period. Total {totalOrders} orders across {totalPartners} partners.
+        </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 mb-8 p-4 bg-white rounded-xl shadow-inner border border-gray-100">
-        <span className="text-sm font-semibold text-gray-700 mr-2 flex-shrink-0">Filter by:</span>
-
+      <div className="flex flex-wrap items-center gap-4 mb-8 p-6 bg-white rounded-3xl shadow-sm border border-gray-100">
+        <span className="text-xs font-black text-gray-500 uppercase tracking-widest mr-2">Filter by:</span>
         <div className="w-full sm:w-auto flex-grow max-w-xs">
           <DateFilterDropdown selectedRange={selectedRange} setSelectedRange={setSelectedRange} setCustomDates={setCustomDates} />
         </div>
 
         <select
-          className="border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg cursor-pointer shadow-sm w-full sm:w-auto"
+          className="border border-gray-200 text-gray-700 font-bold py-2 px-4 rounded-xl cursor-pointer shadow-sm hover:border-red-300 transition-all h-11 text-sm"
           value={filters.partner}
           onChange={(e) => setFilters({ ...filters, partner: e.target.value })}
         >
           <option value="">All Partners ({partners.length})</option>
           {partners.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
+            <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
 
-
         <select
-          className="border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg cursor-pointer shadow-sm w-full sm:w-auto"
+          className="border border-gray-200 text-gray-700 font-bold py-2 px-4 rounded-xl cursor-pointer shadow-sm hover:border-red-300 transition-all h-11 text-sm"
           value={filters.shift}
           onChange={(e) => setFilters({ ...filters, shift: e.target.value })}
         >
@@ -255,77 +236,64 @@ const Delivery = () => {
               setAppliedCustomDates({ start: null, end: null });
               setPage(1);
             }}
-            className="px-4 py-2 text-sm font-semibold bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center shadow-sm w-full sm:w-auto"
+            className="px-6 py-2 text-xs font-black bg-red-50 text-red-800 rounded-xl hover:bg-red-800 hover:text-white flex items-center transition-all uppercase italic"
           >
             <XCircle className="w-4 h-4 mr-1" /> Reset All
           </button>
         )}
       </div>
 
-      {selectedRange === "custom_range" && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-4 p-4 border border-cyan-100 bg-cyan-50 rounded-xl">
-          <span className="text-sm font-semibold text-cyan-800 self-center hidden lg:block">Custom Range:</span>
-
+      {selectedRange === DATE_RANGES.CUSTOM && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8 p-6 border border-red-100 bg-red-50/30 rounded-3xl">
+          <span className="text-xs font-black text-red-800 self-center uppercase tracking-widest">Custom Range:</span>
           <DatePicker
             selected={customDates.start}
             onChange={(date) => setCustomDates((p) => ({ ...p, start: date }))}
             selectsStart
-            startDate={customDates.start}
-            endDate={customDates.end}
             placeholderText="Start Date"
-            className="border border-cyan-300 rounded-lg p-2.5 h-11 text-sm w-full text-center"
+            className="border border-gray-200 rounded-xl p-3 h-11 text-sm font-bold w-full text-center"
             wrapperClassName="w-full"
           />
-
           <DatePicker
             selected={customDates.end}
             onChange={(date) => setCustomDates((p) => ({ ...p, end: date }))}
             selectsEnd
-            startDate={customDates.start}
-            endDate={customDates.end}
             minDate={customDates.start}
             placeholderText="End Date"
-            className="border border-cyan-300 rounded-lg p-2.5 h-11 text-sm w-full text-center"
+            className="border border-gray-200 rounded-xl p-3 h-11 text-sm font-bold w-full text-center"
             wrapperClassName="w-full"
           />
-
           <button
             onClick={applyRange}
             disabled={!customDates.start || !customDates.end}
-            className="bg-cyan-600 text-white text-sm font-semibold py-2 px-4 h-11 rounded-lg shadow-md disabled:bg-gray-400 hover:bg-cyan-700 w-full"
+            className="bg-red-800 text-white text-xs font-black py-2 px-6 h-11 rounded-xl shadow-md disabled:bg-gray-300 hover:bg-red-900 uppercase italic tracking-widest"
           >
             Apply Date Range
           </button>
-
-          <div className="hidden md:block" />
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
         {shiftSummary.map((s) => (
-          <div
-            key={s.shift}
-            className="bg-white rounded-2xl p-6 flex flex-col justify-between border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 h-full"
-          >
-            <div className="flex items-center justify-between mb-4">
+          <div key={s.shift} className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 group">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 group-hover:text-red-800 transition-colors">
                   {s.shift} Shift
                 </p>
-                <p className="text-3xl font-black text-gray-900 tracking-tight">
+                <p className="text-4xl font-black text-gray-900 italic tracking-tighter">
                   {s.count}
                 </p>
               </div>
-              {/* Dynamic Icon Accent */}
-              <div className={`p-3 rounded-xl bg-gray-50 text-gray-600`}>
-                <Clock className="w-6 h-6" />
+              <div className="p-4 rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-red-50 group-hover:text-red-800 transition-all">
+                <Clock className="w-8 h-8" />
               </div>
             </div>
-
-            <div className="flex items-center pt-4 border-t border-gray-50">
-              <div className="p-1.5 bg-cyan-50 text-cyan-600 rounded-lg mr-3">
-                <Users className="w-4 h-4" />
+            <div className="flex items-center pt-6 border-t border-gray-50">
+              <div className="p-2 bg-amber-50 text-amber-600 rounded-lg mr-3 border border-amber-100">
+                <Users className="w-5 h-5" />
               </div>
-              <p className="text-sm font-bold text-gray-600">
+              <p className="text-sm font-bold text-gray-700">
                 {s.partners.length} <span className="text-gray-400 font-medium">Partners</span>
               </p>
             </div>
@@ -333,70 +301,59 @@ const Delivery = () => {
         ))}
       </div>
 
-      <div className="bg-white p-4 lg:p-6 rounded-xl shadow-md border border-gray-200 mb-10 flex flex-wrap justify-between items-center space-y-3 lg:space-y-0">
-        <div className="w-full lg:w-auto text-lg font-bold text-gray-800 flex items-center">
-          <span className="p-2 mr-3 bg-cyan-100 rounded-full text-cyan-600">
-            <Truck className="w-6 h-6" />
+      <div className="bg-red-800 p-8 rounded-[2rem] shadow-xl shadow-red-900/20 mb-10 flex flex-wrap justify-between items-center">
+        <div className="w-full lg:w-auto text-xl font-black text-white italic flex items-center uppercase">
+          <span className="p-3 mr-4 bg-white/10 rounded-2xl text-amber-400">
+            <Truck className="w-8 h-8" />
           </span>
           Filtered Delivery Metrics
         </div>
-
-        <div className="flex flex-wrap gap-6 sm:gap-10 w-full lg:w-auto justify-end">
-          <div>
-            <span className="text-3xl font-extrabold text-cyan-600">
-              {pagination?.total || 0}
-            </span>
-            <span className="text-sm text-gray-500 font-medium mt-[-4px] block">
-              Total Orders (Overall)
-            </span>
+        <div className="flex flex-wrap gap-10 w-full lg:w-auto justify-end">
+          <div className="border-r border-white/10 pr-10">
+            <span className="text-3xl font-black text-white italic block">{pagination?.total || 0}</span>
+            <span className="text-[10px] font-black text-red-200 uppercase tracking-widest block">Total Orders (Overall)</span>
           </div>
-
-          <div>
-            <span className="text-3xl font-extrabold text-indigo-600">
-              {partners.length}
-            </span>
-            <span className="text-sm text-gray-500 font-medium mt-[-4px] block">
-              Unique Partners (Overall)
-            </span>
+          <div className="border-r border-white/10 pr-10">
+            <span className="text-3xl font-black text-amber-400 italic block">{partners.length}</span>
+            <span className="text-[10px] font-black text-red-200 uppercase tracking-widest block">Unique Partners (Overall)</span>
           </div>
-
           <div>
-            <span className="text-3xl font-extrabold text-emerald-600">
+            <span className="text-3xl font-black text-white italic block">
               {partners.length === 0 ? 0 : (pagination.total / partners.length).toFixed(1)}
             </span>
-            <span className="text-sm text-gray-500 font-medium mt-[-4px] block">
-              Orders / Partner (Overall)
-            </span>
+            <span className="text-[10px] font-black text-red-200 uppercase tracking-widest block">Orders / Partner (Overall)</span>
           </div>
         </div>
       </div>
 
-
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6">
         {orders.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">No deliveries found.</div>
+          <div className="text-center py-20 text-gray-400 font-black uppercase tracking-widest text-xs italic">No deliveries found.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-cyan-50">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead className="bg-gray-50/50">
                 <tr>
                   {["Order ID", "Customer", "Partner", "Delivery Time", "Shift", "Status"].map((col) => (
-                    <th key={col} className="py-3 px-6 text-left text-xs font-bold text-cyan-700 uppercase tracking-wider">
+                    <th key={col} className="py-5 px-8 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">
                       {col}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
+              <tbody className="bg-white divide-y divide-gray-50">
                 {orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="py-3 px-6 text-sm font-semibold">{order.order_number}</td>
-                    <td className="py-3 px-6 text-sm">{order.customer}</td>
-                    <td className="py-3 px-6 text-sm">{order.partner}</td>
-                    <td className="py-3 px-6 text-sm">{order.deliveryTime}</td>
-                    <td className="py-3 px-6 text-sm">{order.shift}</td>
-                    <td className="py-3 px-6 text-sm">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${order.status === "Delivered" ? "bg-green-100 text-green-800" : order.status === "Cancelled" ? "bg-red-100 text-red-800" : "bg-yellow-100 text-yellow-800"}`}>
+                  <tr key={order.id} className="hover:bg-red-50/30 transition-colors">
+                    <td className="py-5 px-8 text-sm font-black text-gray-900 italic uppercase">{order.order_number}</td>
+                    <td className="py-5 px-8 text-sm font-bold text-gray-600">{order.customer}</td>
+                    <td className="py-5 px-8 text-sm font-bold text-gray-600">{order.partner}</td>
+                    <td className="py-5 px-8 text-sm font-mono text-gray-500">{order.deliveryTime}</td>
+                    <td className="py-5 px-8"><span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-[10px] font-black uppercase italic">{order.shift}</span></td>
+                    <td className="py-5 px-8">
+                      <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase italic tracking-widest border ${order.status === "Delivered" ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
+                        order.status === "Cancelled" ? "bg-red-50 text-red-700 border-red-100" :
+                          "bg-amber-50 text-amber-700 border-amber-100"
+                        }`}>
                         {order.status}
                       </span>
                     </td>
@@ -409,22 +366,19 @@ const Delivery = () => {
       </div>
 
       {pagination?.totalPages >= 1 && (
-        <div className="flex items-center justify-between mt-8 p-4 bg-gray-50 rounded-xl border">
-          <p className="text-sm text-gray-700">
-            Showing <span className="font-semibold text-cyan-700">{(page - 1) * LIMIT + 1}</span> to{" "}
-            <span className="font-semibold text-cyan-700">{Math.min(page * LIMIT, pagination.total)}</span> of{" "}
-            <span className="font-semibold text-cyan-700">{pagination.total}</span> deliveries
+        <div className="flex items-center justify-between mt-8 p-6 bg-white rounded-3xl border border-gray-100 shadow-sm">
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+            Showing <span className="text-red-800 font-black italic">{(page - 1) * LIMIT + 1}</span> to{" "}
+            <span className="text-red-800 font-black italic">{Math.min(page * LIMIT, pagination.total)}</span> of{" "}
+            <span className="text-red-800 font-black italic">{pagination.total}</span> deliveries
           </p>
-
-          <div className="flex items-center gap-2">
-            <button onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1} className="w-10 h-10 flex items-center justify-center rounded-xl border bg-white">
-              <ChevronLeft size={20} />
+          <div className="flex items-center gap-3">
+            <button onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1} className="w-11 h-11 flex items-center justify-center rounded-2xl border border-gray-100 bg-white text-gray-400 hover:text-red-800 disabled:opacity-30 shadow-sm transition-all">
+              <ChevronLeft size={22} strokeWidth={3} />
             </button>
-
-            <span className="text-sm font-semibold">Page {page} of {pagination.totalPages}</span>
-
-            <button onClick={() => setPage((p) => Math.min(p + 1, pagination.totalPages))} disabled={page >= pagination.totalPages} className="w-10 h-10 flex items-center justify-center rounded-xl border bg-white">
-              <ChevronRight size={20} />
+            <span className="text-xs font-black text-gray-700 uppercase italic">Page {page} of {pagination.totalPages}</span>
+            <button onClick={() => setPage((p) => Math.min(p + 1, pagination.totalPages))} disabled={page >= pagination.totalPages} className="w-11 h-11 flex items-center justify-center rounded-2xl border border-gray-100 bg-white text-gray-400 hover:text-red-800 disabled:opacity-30 shadow-sm transition-all">
+              <ChevronRight size={22} strokeWidth={3} />
             </button>
           </div>
         </div>
